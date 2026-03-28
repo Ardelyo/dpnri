@@ -6,6 +6,7 @@ interface ProvinceNodeProps {
   voteStatus?: VoteType | 'none';
   isSelected?: boolean;
   isNew?: boolean;
+  isUser?: boolean;
   onClick?: (e: React.MouseEvent) => void;
   rowFraction: number;
 }
@@ -14,7 +15,8 @@ export const ProvinceNode: React.FC<ProvinceNodeProps> = ({
   province, 
   voteStatus = 'none', 
   isSelected = false, 
-  isNew = false, 
+  isNew = false,
+  isUser = false,
   onClick,
 }: ProvinceNodeProps) => {
   const getGlow = () => {
@@ -42,7 +44,9 @@ export const ProvinceNode: React.FC<ProvinceNodeProps> = ({
         height: '26px',
         borderRadius: 'var(--radius-sm)',
         background: getBackground(),
-        border: isSelected ? '2px solid var(--accent)' : '1px solid rgba(255,255,255,0.05)',
+        border: isSelected || isUser
+          ? '2px solid var(--accent)'
+          : '1px solid rgba(255,255,255,0.05)',
         display: 'flex',
         alignItems: 'center',
         justifyContent: 'center',

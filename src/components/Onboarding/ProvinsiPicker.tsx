@@ -1,5 +1,6 @@
 import React, { useState, useMemo } from 'react';
 import { useDPNStore } from '../../store/dpnStore';
+import { useUserStore } from '../../store/useUserStore';
 import { PROVINCES_BY_REGION } from '../../constants/provinces';
 import type { DPNState } from '../../types';
 
@@ -7,6 +8,7 @@ export const ProvinsiPicker: React.FC = () => {
   const setScreen = useDPNStore((s: DPNState) => s.setScreen);
   const setUserProvinsi = useDPNStore((s: DPNState) => s.setUserProvinsi);
   const userProvinsi = useDPNStore((s: DPNState) => s.userProvinsi);
+  const setProvince = useUserStore(s => s.setProvince);
 
   const [search, setSearch] = useState('');
   const [selected, setSelected] = useState<string | null>(userProvinsi);
@@ -31,7 +33,10 @@ export const ProvinsiPicker: React.FC = () => {
   const handleConfirm = () => {
     if (selected) {
       setUserProvinsi(selected);
-      setScreen('room');
+      // Persist to new user store too (province id = slugified name)
+      const id = selected.toLowerCase().replace(/\s+/g, '-').replace(/[^a-z0-9-]/g, '');
+      setProvince(id, selected);
+      setScreen('onboarding-flow');
     }
   };
 
@@ -158,7 +163,7 @@ export const ProvinsiPicker: React.FC = () => {
         <button
           onClick={() => setScreen('landing')}
           style={{
-            height: '48px',
+            height: '44px',
             background: 'none',
             border: 'none',
             color: 'var(--text-tertiary)',

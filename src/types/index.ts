@@ -1,5 +1,15 @@
 export type VoteType = "setuju" | "abstain" | "tolak";
-export type Screen = "room" | "speak" | "archive" | "map" | "landing" | "onboarding" | "postvote";
+export type Screen =
+  | "landing"
+  | "auth"
+  | "onboarding"         // province picker
+  | "onboarding-flow"    // 3-screen carousel
+  | "room"               // active session
+  | "speak"              // vote form
+  | "postvote"           // post vote confirmation
+  | "archive"            // risalah list
+  | "map"                // indonesia map
+  | "settings";          // account / settings
 
 export interface Opinion {
   id: string;

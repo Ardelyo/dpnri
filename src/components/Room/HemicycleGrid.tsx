@@ -8,6 +8,7 @@ interface HemicycleGridProps {
   newlyVotedProv: string | null;
   selectedProv: string | null;
   onNodeClick: (provName: string) => void;
+  userProvince?: string | null;
 }
 
 const ARC_CONFIG = [
@@ -23,6 +24,7 @@ export const HemicycleGrid: React.FC<HemicycleGridProps> = ({
   newlyVotedProv,
   selectedProv,
   onNodeClick,
+  userProvince,
 }) => {
   const [viewportWidth, setViewportWidth] = useState(typeof window !== 'undefined' ? window.innerWidth : 360);
 
@@ -136,6 +138,7 @@ export const HemicycleGrid: React.FC<HemicycleGridProps> = ({
             voteStatus={provinceVotes[node.province.name] || 'none'}
             isSelected={selectedProv === node.province.name}
             isNew={newlyVotedProv === node.province.name}
+            isUser={userProvince === node.province.name}
             onClick={() => onNodeClick(node.province.name)}
             rowFraction={node.rowFraction}
           />

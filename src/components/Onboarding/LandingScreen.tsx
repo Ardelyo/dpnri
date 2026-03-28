@@ -1,8 +1,26 @@
-import React from 'react';
+import React, { useEffect, useState } from 'react';
 import { useDPNStore } from '../../store/dpnStore';
+import { useUserStore } from '../../store/useUserStore';
 
 export const LandingScreen: React.FC = () => {
   const setScreen = useDPNStore(s => s.setScreen);
+  const { isLoggedIn, provinceId, hasCompletedOnboarding } = useUserStore();
+  const [visible, setVisible] = useState(false);
+
+  // Auth guard — redirect if already logged in
+  useEffect(() => {
+    if (isLoggedIn && provinceId && hasCompletedOnboarding) {
+      setScreen('room');
+      return;
+    }
+    if (isLoggedIn && !provinceId) {
+      setScreen('onboarding');
+      return;
+    }
+    // Show landing
+    const t = setTimeout(() => setVisible(true), 60);
+    return () => clearTimeout(t);
+  }, []);
 
   return (
     <div style={{
@@ -12,96 +30,128 @@ export const LandingScreen: React.FC = () => {
       zIndex: 100,
       display: 'flex',
       flexDirection: 'column',
-      justifyContent: 'center',
       alignItems: 'center',
-      padding: '24px',
+      padding: '0 24px',
       textAlign: 'center',
       overflow: 'hidden',
+      opacity: visible ? 1 : 0,
+      transition: 'opacity 400ms ease',
     }}>
-      {/* Background Decorative Flare */}
+      {/* Subtle top glow */}
       <div style={{
         position: 'absolute',
-        top: '-10%',
-        left: '50%',
+        top: 0, left: '50%',
         transform: 'translateX(-50%)',
-        width: '120%',
-        height: '40%',
-        background: 'radial-gradient(ellipse at center, rgba(201,162,39,0.08) 0%, transparent 70%)',
-        zIndex: -1,
+        width: '100%', height: '35%',
+        background: 'radial-gradient(ellipse at 50% 0%, rgba(184,164,114,0.05) 0%, transparent 70%)',
         pointerEvents: 'none',
       }} />
 
+      {/* Top spacer */}
+      <div style={{ flex: '0 0 22vh' }} />
+
+      {/* Icon */}
       <div style={{
-        fontSize: '12px',
+        fontSize: '36px',
         color: 'var(--accent)',
-        fontWeight: 700,
-        letterSpacing: '0.2em',
-        textTransform: 'uppercase',
-        marginBottom: '16px',
+        lineHeight: 1,
+        marginBottom: '12px',
+      }}>🏛</div>
+
+      {/* Wordmark */}
+      <div style={{
+        fontSize: '11px',
+        fontWeight: 600,
+        color: 'var(--accent)',
         fontFamily: 'var(--font-ui)',
+        letterSpacing: '0.08em',
+        textTransform: 'uppercase',
+        marginBottom: '24px',
       }}>
-        PROYEK DEMOKRASI DIGITAL
+        Dewan Perwakilan Netizen
       </div>
 
+      {/* Headline */}
       <h1 style={{
         fontFamily: 'var(--font-display)',
-        fontSize: '42px',
-        lineHeight: 1,
+        fontSize: '28px',
         color: 'var(--text-primary)',
-        margin: '0 0 16px',
         fontWeight: 400,
+        lineHeight: 1.2,
+        margin: '0 0 12px',
       }}>
-        DEWAN <br />
-        PERWAKILAN <br />
-        NETIZEN
+        Suaramu untuk Indonesia.
       </h1>
 
+      {/* Subheadline */}
       <p style={{
         fontFamily: 'var(--font-ui)',
-        fontSize: '15px',
-        lineHeight: 1.6,
+        fontSize: '14px',
         color: 'var(--text-secondary)',
-        maxWidth: '300px',
-        margin: '0 0 48px',
-        fontWeight: 400,
+        lineHeight: 1.65,
+        margin: '0 0 40px',
+        maxWidth: '280px',
       }}>
-        Suaramu adalah kedaulatan. Ikut serta dalam sidang rakyat digital pertama di Indonesia.
+        Ikut voting isu kebijakan nyata. Lihat apakah DPR sejalan dengan rakyat. Semua tercatat permanen.
       </p>
 
+      {/* Primary CTA */}
       <button
-        onClick={() => setScreen('onboarding')}
+        onClick={() => setScreen('auth')}
         style={{
-          width: '200px',
-          height: '52px',
+          width: '100%',
+          maxWidth: '360px',
+          height: '48px',
           background: 'var(--accent)',
           border: 'none',
           borderRadius: 'var(--radius-md)',
           color: 'var(--surface-0)',
-          fontWeight: 700,
-          fontSize: '15px',
           fontFamily: 'var(--font-ui)',
+          fontWeight: 600,
+          fontSize: '15px',
           cursor: 'pointer',
-          letterSpacing: '0.05em',
-          textTransform: 'uppercase',
-          boxShadow: 'var(--shadow-lg)',
-          transition: 'transform 200ms ease',
+          letterSpacing: '0.02em',
+          transition: 'transform 150ms ease',
+          WebkitTapHighlightColor: 'transparent',
         }}
-        onMouseEnter={(e) => e.currentTarget.style.transform = 'scale(1.02)'}
-        onMouseLeave={(e) => e.currentTarget.style.transform = 'scale(1)'}
+        onPointerDown={e => (e.currentTarget.style.transform = 'scale(0.98)')}
+        onPointerUp={e => (e.currentTarget.style.transform = 'scale(1)')}
+        onPointerCancel={e => (e.currentTarget.style.transform = 'scale(1)')}
       >
-        MASUK SIDANG
+        Masuk sebagai Warga
       </button>
 
+      {/* Secondary CTA */}
+      <button
+        onClick={() => setScreen('room')}
+        style={{
+          background: 'none',
+          border: 'none',
+          color: 'var(--text-secondary)',
+          fontFamily: 'var(--font-ui)',
+          fontSize: '13px',
+          cursor: 'pointer',
+          marginTop: '16px',
+          padding: '8px 4px',
+          WebkitTapHighlightColor: 'transparent',
+        }}
+      >
+        Lihat sidang tanpa masuk →
+      </button>
+
+      {/* Flex spacer */}
+      <div style={{ flex: 1 }} />
+
+      {/* Disclaimer */}
       <div style={{
         position: 'absolute',
-        bottom: '32px',
-        fontSize: '10px',
+        bottom: 'max(24px, env(safe-area-inset-bottom, 24px))',
+        fontSize: '11px',
         color: 'var(--text-tertiary)',
         fontFamily: 'var(--font-ui)',
-        letterSpacing: '0.05em',
-        opacity: 0.6,
+        fontStyle: 'italic',
       }}>
-        VERSI KONSEP 0.2 • 2024
+        Platform aspirasi publik. Bukan lembaga negara.
       </div>
     </div>
   );

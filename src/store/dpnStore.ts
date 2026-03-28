@@ -11,11 +11,25 @@ import {
   createNewOpinion 
 } from '../utils/opinion-logic';
 
+// Determine correct initial screen from user store (localStorage read)
+function getInitialScreen(): Screen {
+  const savedProvinsi = typeof window !== 'undefined' ? localStorage.getItem('dpn_provinsi') : null;
+  const userRaw = typeof window !== 'undefined' ? localStorage.getItem('dpn-user-state') : null;
+  if (userRaw) {
+    try {
+      const user = JSON.parse(userRaw);
+      if (user.isLoggedIn && user.provinceId && user.hasCompletedOnboarding) return 'room';
+      if (user.isLoggedIn && !user.provinceId) return 'onboarding';
+    } catch {}
+  }
+  if (savedProvinsi) return 'room';
+  return 'landing';
+}
 
 const savedProvinsi = typeof window !== 'undefined' ? localStorage.getItem('dpn_provinsi') : null;
 
 export const useDPNStore = create<DPNState>((set: any, get: any) => ({
-  screen: savedProvinsi ? "room" : "landing",
+  screen: getInitialScreen(),
   setScreen: (s: Screen) => set({ screen: s }),
 
   userProvinsi: savedProvinsi,

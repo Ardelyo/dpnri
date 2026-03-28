@@ -1,19 +1,58 @@
 import React, { useEffect, useState } from 'react';
 import { useDPNStore } from '../../store/dpnStore';
+import { useUserStore } from '../../store/useUserStore';
 import type { DPNState } from '../../types';
+
+const voteColors: Record<string, string> = {
+  setuju: 'var(--setuju)',
+  abstain: 'var(--abstain)',
+  tolak: 'var(--tolak)',
+};
+
+const voteLabels: Record<string, string> = {
+  setuju: 'Setuju',
+  abstain: 'Abstain',
+  tolak: 'Tolak',
+};
 
 export const PostVoteConfirmation: React.FC = () => {
   const setScreen = useDPNStore((s: DPNState) => s.setScreen);
-  const lastSubmittedOpinion = useDPNStore((s: DPNState) => s.lastSubmittedOpinion);
+  const session   = useDPNStore((s: DPNState) => s.activeSession);
+
+  const getVote = useUserStore(s => s.getVote);
+  const showToast = useUserStore(s => s.showToast);
 
   const [showContent, setShowContent] = useState(false);
+
+  const voteRecord = getVote(String(session.nomor));
 
   useEffect(() => {
     const timer = setTimeout(() => setShowContent(true), 100);
     return () => clearTimeout(timer);
   }, []);
 
-  if (!lastSubmittedOpinion) return null;
+  if (!voteRecord) {
+    // No vote — go back
+    setScreen('room');
+    return null;
+  }
+
+  const positionColor = voteColors[voteRecord.position];
+  const positionLabel = voteLabels[voteRecord.position];
+
+  const handleShare = async () => {
+    const shareText = `Suaraku di Sidang DPN #${String(session.nomor).padStart(3, '0')}: ${positionLabel}.\n"${voteRecord.opinionText}"\n\nID: ${voteRecord.voteId}`;
+    if (navigator.share) {
+      try {
+        await navigator.share({ title: 'Kartu Suara DPN', text: shareText });
+      } catch {
+        // user cancelled
+      }
+    } else {
+      await navigator.clipboard.writeText(shareText);
+      showToast('Teks disalin ke clipboard', 'success');
+    }
+  };
 
   return (
     <div style={{
@@ -25,124 +64,193 @@ export const PostVoteConfirmation: React.FC = () => {
       flexDirection: 'column',
       height: '100dvh',
       overflowY: 'auto',
-      paddingBottom: '32px'
     }}>
-      {/* 1. Header */}
-      <div style={{ padding: '0 16px 16px', flexShrink: 0 }}>
+      {/* Back nav */}
+      <div style={{ padding: '0 16px', flexShrink: 0 }}>
         <button
           onClick={() => setScreen('room')}
           style={{
-            height: '44px',
-            background: 'none',
-            border: 'none',
-            color: 'var(--text-secondary)',
-            fontSize: '14px',
-            fontFamily: 'var(--font-ui)',
-            cursor: 'pointer',
-            padding: '12px 0',
-            WebkitTapHighlightColor: 'transparent',
+            height: '44px', background: 'none', border: 'none',
+            color: 'var(--text-secondary)', fontSize: '14px',
+            fontFamily: 'var(--font-ui)', cursor: 'pointer',
+            padding: '0', WebkitTapHighlightColor: 'transparent',
           }}
         >
           ← Kembali ke Sidang
         </button>
       </div>
 
+      {/* Main content */}
       <div style={{
         flex: 1,
         display: 'flex',
         flexDirection: 'column',
         alignItems: 'center',
-        padding: '0 24px',
+        padding: '24px 24px 0',
         opacity: showContent ? 1 : 0,
-        transform: showContent ? 'translateY(0)' : 'translateY(20px)',
-        transition: 'all 600ms cubic-bezier(0.16, 1, 0.3, 1)'
+        transform: showContent ? 'translateY(0)' : 'translateY(16px)',
+        transition: 'all 500ms cubic-bezier(0.16,1,0.3,1)',
       }}>
-        {/* Checkmark animation */}
+        {/* Checkmark circle */}
         <div style={{
-          width: '64px',
-          height: '64px',
-          borderRadius: '50%',
+          width: '64px', height: '64px', borderRadius: '50%',
           border: '2px solid var(--accent)',
-          display: 'flex',
-          alignItems: 'center',
-          justifyContent: 'center',
+          display: 'flex', alignItems: 'center', justifyContent: 'center',
           marginBottom: '20px',
         }}>
           <svg width="24" height="24" viewBox="0 0 24 24" fill="none">
-            <polyline
-              points="20 6 9 17 4 12"
-              stroke="var(--accent)"
-              strokeWidth="3"
-              strokeLinecap="round"
-              strokeLinejoin="round"
+            <polyline points="20 6 9 17 4 12"
+              stroke="var(--accent)" strokeWidth="3"
+              strokeLinecap="round" strokeLinejoin="round"
             />
           </svg>
         </div>
 
         <h2 style={{
-          fontFamily: 'var(--font-display)',
-          fontSize: '22px',
-          color: 'var(--text-primary)',
-          margin: '0 0 8px',
-          fontWeight: 400
+          fontFamily: 'var(--font-display)', fontSize: '22px',
+          color: 'var(--text-primary)', fontWeight: 400,
+          margin: '0 0 8px', textAlign: 'center',
         }}>
           Suaramu tercatat.
         </h2>
-        
         <p style={{
-          fontSize: '13px',
-          color: 'var(--text-tertiary)',
-          margin: '0 0 32px',
-          fontFamily: 'var(--font-ui)',
-          textAlign: 'center'
+          fontSize: '13px', color: 'var(--text-tertiary)',
+          fontFamily: 'var(--font-ui)', margin: '0 0 32px',
+          textAlign: 'center',
         }}>
-          Tercatat permanen di arsip DPN.
+          Tersimpan permanen di arsip DPN.
         </p>
 
-        {/* Embedded Share Card (Static version for confirmation screen) */}
-        <div style={{ 
-          width: '100%', 
-          maxWidth: '340px',
-          transform: 'scale(0.95)',
-          filter: 'drop-shadow(0 10px 30px rgba(0,0,0,0.5))'
+        {/* Vote receipt card */}
+        <div style={{
+          width: '100%', maxWidth: '340px',
+          background: 'var(--surface-1)',
+          border: '1px solid var(--surface-3)',
+          borderRadius: 'var(--radius-lg)',
+          overflow: 'hidden',
+          marginBottom: '32px',
         }}>
-          {/* We'll modify ShareCard to be usable as a child or just re-implement the visual here */}
-          {/* For now, just using it as is if hidden behind opacity logic */}
+          {/* Card header */}
+          <div style={{
+            background: 'var(--surface-2)',
+            padding: '12px 16px',
+            borderBottom: '1px solid var(--surface-3)',
+            display: 'flex', justifyContent: 'space-between', alignItems: 'center',
+          }}>
+            <div>
+              <div style={{
+                fontSize: '10px', fontWeight: 700, color: 'var(--accent)',
+                fontFamily: 'var(--font-ui)', letterSpacing: '0.08em',
+                textTransform: 'uppercase', marginBottom: '2px',
+              }}>
+                DEWAN PERWAKILAN NETIZEN
+              </div>
+              <div style={{
+                fontSize: '11px', color: 'var(--text-tertiary)',
+                fontFamily: 'var(--font-ui)',
+              }}>
+                Sidang #{String(session.nomor).padStart(3, '0')}
+              </div>
+            </div>
+            <div style={{
+              display: 'flex', alignItems: 'center', gap: '5px',
+            }}>
+              <div style={{
+                width: '7px', height: '7px', borderRadius: '50%',
+                background: positionColor,
+              }} />
+              <span style={{
+                fontSize: '12px', fontWeight: 700,
+                color: positionColor, fontFamily: 'var(--font-ui)',
+              }}>
+                {positionLabel}
+              </span>
+            </div>
+          </div>
+
+          {/* Quote */}
+          <div style={{ padding: '16px' }}>
+            {voteRecord.opinionText ? (
+              <div style={{
+                borderLeft: '2px solid var(--accent)',
+                paddingLeft: '12px',
+                marginBottom: '14px',
+              }}>
+                <p style={{
+                  fontFamily: 'var(--font-display)', fontStyle: 'italic',
+                  fontSize: '14px', color: 'var(--text-primary)',
+                  margin: 0, lineHeight: 1.55,
+                }}>
+                  "{voteRecord.opinionText}"
+                </p>
+              </div>
+            ) : (
+              <p style={{
+                fontFamily: 'var(--font-display)', fontStyle: 'italic',
+                fontSize: '13px', color: 'var(--text-tertiary)',
+                margin: '0 0 14px',
+              }}>Tidak ada pernyataan.</p>
+            )}
+
+            {/* Judul */}
+            <div style={{
+              fontSize: '12px', color: 'var(--text-secondary)',
+              fontFamily: 'var(--font-ui)', marginBottom: '14px',
+              lineHeight: 1.4,
+            }}>
+              {session.judul}
+            </div>
+
+            {/* Vote ID */}
+            <div style={{ borderTop: '1px solid var(--surface-3)', paddingTop: '12px' }}>
+              <div style={{
+                fontFamily: 'monospace', fontSize: '10px',
+                color: 'var(--text-tertiary)', wordBreak: 'break-all',
+                marginBottom: '4px',
+              }}>
+                {voteRecord.voteId}
+              </div>
+              <div style={{
+                fontSize: '10px', color: 'var(--text-tertiary)',
+                fontFamily: 'var(--font-ui)',
+              }}>
+                {new Date(voteRecord.timestamp).toLocaleDateString('id-ID', {
+                  day: 'numeric', month: 'long', year: 'numeric',
+                })}
+              </div>
+            </div>
+          </div>
         </div>
-        <p style={{ color: 'var(--text-secondary)', fontSize: '11px', fontStyle: 'italic', marginTop: '-10px', marginBottom: '32px'}}>
-          Lihat di bawah untuk membagikan kartu suaramu.
-        </p>
       </div>
 
-      {/* Buttons */}
-      <div style={{ padding: '0 24px' }}>
+      {/* Actions */}
+      <div style={{
+        padding: '0 24px',
+        paddingBottom: 'max(40px, env(safe-area-inset-bottom, 40px))',
+        flexShrink: 0,
+      }}>
         <button
-          onClick={() => {}} // This should trigger the share logic from ShareCard
+          onClick={handleShare}
           style={{
-            width: '100%',
-            height: '48px',
-            background: 'var(--accent)',
-            color: 'var(--surface-0)',
+            width: '100%', height: '48px',
+            background: 'var(--accent)', border: 'none',
             borderRadius: 'var(--radius-md)',
-            border: 'none',
-            fontSize: '15px',
-            fontWeight: 700,
-            cursor: 'pointer',
-            marginBottom: '12px'
+            color: 'var(--surface-0)',
+            fontFamily: 'var(--font-ui)', fontWeight: 700, fontSize: '15px',
+            cursor: 'pointer', marginBottom: '12px',
+            letterSpacing: '0.03em',
           }}
         >
-          ↗ Bagikan Kartu Suara
+          ↗ Bagikan
         </button>
         <button
           onClick={() => setScreen('room')}
           style={{
-            width: '100%',
-            height: '44px',
-            background: 'none',
-            border: 'none',
+            width: '100%', height: '44px',
+            background: 'none', border: 'none',
             color: 'var(--text-secondary)',
-            fontSize: '14px',
-            cursor: 'pointer'
+            fontFamily: 'var(--font-ui)', fontSize: '14px',
+            cursor: 'pointer',
           }}
         >
           Kembali ke Sidang
