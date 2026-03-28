@@ -1,0 +1,711 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0">
+  <title>DPN Node Grid Test</title>
+  <style>
+    /* CSS custom properties */
+    :root {
+      --surface-0: #0c0c0a;
+      --surface-1: #16150f;
+      --surface-2: #201e16;
+      --surface-3: #2a2820;
+      --text-primary: #e8e4d9;
+      --text-secondary: #9c9787;
+      --text-tertiary: #6b6557;
+      --accent: #b8a472;
+      --setuju: #7a9c6e;
+      --tolak: #b5564e;
+      --abstain: #8a8475;
+      --radius-sm: 4px;
+    }
+
+    * { box-sizing: border-box; margin: 0; padding: 0; }
+    
+    body {
+      background: var(--surface-0);
+      color: var(--text-primary);
+      font-family: system-ui, sans-serif;
+      /* SIMULASI MOBILE VIEWPORT */
+      max-width: 390px;
+      margin: 0 auto;
+      padding: 16px;
+      min-height: 100vh;
+      overflow-x: hidden;
+    }
+
+    /* DEBUG OVERLAY — tampilkan viewport info */
+    #debug {
+      position: fixed;
+      top: 0;
+      left: 50%;
+      transform: translateX(-50%);
+      background: rgba(255,0,0,0.8);
+      color: white;
+      padding: 4px 8px;
+      font-size: 11px;
+      z-index: 999;
+    }
+
+    /* === GRID CONTAINER === */
+    .node-grid-wrapper {
+      width: 100%;
+      padding: 0;          /* tidak ada padding ekstra — sudah ada di body */
+      overflow: visible;   /* BUKAN overflow hidden */
+    }
+
+    /* === SETIAP BARIS === */
+    .node-row {
+      display: flex;
+      flex-direction: row;
+      justify-content: center;  /* centered horizontal */
+      align-items: center;
+      gap: 6px;                 /* jarak antar node dalam satu baris */
+      margin-bottom: 6px;       /* jarak antar baris */
+      width: 100%;
+    }
+
+    .node-row:last-child {
+      margin-bottom: 0;
+    }
+
+    /* === INDIVIDUAL NODE === */
+    .node {
+      /* UKURAN — KRITIS: harus cukup kecil agar semua muat */
+      /* Di viewport 390px dengan padding 32px total = 358px usable */
+      /* Baris terpanjang 9 node + 8 gap (6px) = 9*W + 48 = 358 */
+      /* Jadi: 9W = 310, W = 34px */
+      /* Kita pakai 32px untuk safety margin */
+      width: 32px;
+      height: 26px;
+      
+      /* Typography */
+      font-family: 'Plus Jakarta Sans', system-ui, sans-serif;
+      font-size: 9px;
+      font-weight: 700;
+      letter-spacing: 0.02em;
+      text-align: center;
+      line-height: 1;
+      
+      /* Layout */
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      
+      /* Shape */
+      border-radius: var(--radius-sm);  /* 4px */
+      border: 1px solid transparent;
+      
+      /* Interaction */
+      cursor: pointer;
+      user-select: none;
+      -webkit-tap-highlight-color: transparent;
+      
+      /* Transition */
+      transition: transform 150ms ease-out,
+                  background-color 300ms ease-out,
+                  border-color 300ms ease-out,
+                  opacity 300ms ease-out;
+      
+      /* Prevent text selection on tap */
+      touch-action: manipulation;
+    }
+
+    /* === NODE STATES === */
+
+    /* Default — belum ada vote dari provinsi ini */
+    .node[data-status="null"],
+    .node[data-status=""] {
+      background: var(--surface-2);
+      border-color: var(--surface-3);
+      color: var(--text-tertiary);
+      opacity: 0.45;
+    }
+
+    /* Setuju */
+    .node[data-status="setuju"] {
+      background: var(--setuju);
+      border-color: var(--setuju);
+      color: #ffffff;
+      opacity: 1;
+    }
+
+    /* Tolak */
+    .node[data-status="tolak"] {
+      background: var(--tolak);
+      border-color: var(--tolak);
+      color: #ffffff;
+      opacity: 1;
+    }
+
+    /* Abstain */
+    .node[data-status="abstain"] {
+      background: var(--abstain);
+      border-color: var(--abstain);
+      color: #ffffff;
+      opacity: 1;
+    }
+
+    /* === INTERACTION STATES === */
+
+    /* Tap/click feedback */
+    .node:active {
+      transform: scale(0.95);
+      transition: transform 100ms ease-out;
+    }
+
+    /* Selected (after tap, before bottom sheet closes) */
+    .node.selected {
+      transform: scale(1.05);
+      box-shadow: 0 0 0 2px var(--accent);
+      transition: transform 150ms ease-out;
+    }
+
+    /* === LEGENDA === */
+    .node-legend {
+      display: flex;
+      flex-direction: row;
+      justify-content: center;
+      align-items: center;
+      gap: 16px;
+      margin-top: 14px;
+    }
+
+    .legend-item {
+      display: flex;
+      align-items: center;
+      gap: 5px;
+      font-size: 10px;
+      color: var(--text-tertiary);
+      font-family: system-ui, sans-serif;
+    }
+
+    .legend-dot {
+      width: 6px;
+      height: 6px;
+      border-radius: 50%;
+      flex-shrink: 0;
+    }
+
+    .legend-dot.setuju  { background: var(--setuju); }
+    .legend-dot.abstain { background: var(--abstain); }
+    .legend-dot.tolak   { background: var(--tolak); }
+    .legend-dot.belum   { background: var(--surface-3); }
+
+    /* === BOTTOM SHEET === */
+    .bottom-sheet-backdrop {
+      position: fixed;
+      inset: 0;
+      background: rgba(12, 12, 10, 0.6);
+      backdrop-filter: blur(4px);
+      -webkit-backdrop-filter: blur(4px);
+      z-index: 100;
+      opacity: 0;
+      pointer-events: none;
+      transition: opacity 200ms ease-out;
+    }
+
+    .bottom-sheet-backdrop.visible {
+      opacity: 1;
+      pointer-events: all;
+    }
+
+    .bottom-sheet {
+      position: fixed;
+      bottom: 0;
+      left: 50%;
+      transform: translateX(-50%) translateY(100%);
+      width: 100%;
+      max-width: 390px;
+      background: var(--surface-1);
+      border-top: 1px solid var(--surface-3);
+      border-radius: 12px 12px 0 0;
+      z-index: 101;
+      transition: transform 250ms ease-out;
+      padding-bottom: env(safe-area-inset-bottom, 0px);
+      
+      /* Max height */
+      max-height: 55vh;
+      overflow-y: auto;
+    }
+
+    .bottom-sheet.visible {
+      transform: translateX(-50%) translateY(0);
+    }
+
+    /* Handle bar */
+    .sheet-handle {
+      width: 40px;
+      height: 4px;
+      background: var(--surface-3);
+      border-radius: 2px;
+      margin: 12px auto 0;
+    }
+
+    /* Sheet content */
+    .sheet-content {
+      padding: 16px 20px 20px;
+    }
+
+    .sheet-header {
+      display: flex;
+      justify-content: space-between;
+      align-items: flex-start;
+      margin-bottom: 4px;
+    }
+
+    .sheet-province-name {
+      font-size: 16px;
+      font-weight: 600;
+      color: var(--text-primary);
+      font-family: system-ui, sans-serif;
+    }
+
+    .sheet-close {
+      width: 44px;
+      height: 44px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      cursor: pointer;
+      color: var(--text-tertiary);
+      font-size: 18px;
+      margin: -8px -8px 0 0;
+      border-radius: 50%;
+      -webkit-tap-highlight-color: transparent;
+    }
+
+    .sheet-position {
+      display: flex;
+      align-items: center;
+      gap: 6px;
+      font-size: 13px;
+      font-weight: 600;
+      margin-bottom: 16px;
+    }
+
+    .sheet-position-dot {
+      width: 6px;
+      height: 6px;
+      border-radius: 50%;
+      flex-shrink: 0;
+    }
+
+    .sheet-position[data-pos="setuju"] { color: var(--setuju); }
+    .sheet-position[data-pos="tolak"]  { color: var(--tolak); }
+    .sheet-position[data-pos="abstain"]{ color: var(--text-secondary); }
+
+    .sheet-position-dot[data-pos="setuju"] { background: var(--setuju); }
+    .sheet-position-dot[data-pos="tolak"]  { background: var(--tolak); }
+    .sheet-position-dot[data-pos="abstain"]{ background: var(--abstain); }
+
+    .sheet-quote {
+      font-style: italic;
+      font-size: 15px;
+      color: var(--text-primary);
+      line-height: 1.5;
+      padding-left: 14px;
+      border-left: 2px solid;
+      margin-bottom: 12px;
+    }
+
+    .sheet-quote[data-pos="setuju"] { border-color: var(--setuju); }
+    .sheet-quote[data-pos="tolak"]  { border-color: var(--tolak); }
+    .sheet-quote[data-pos="abstain"]{ border-color: var(--abstain); }
+
+    .sheet-meta {
+      font-size: 11px;
+      color: var(--text-tertiary);
+      font-family: monospace;
+      margin-bottom: 20px;
+    }
+
+    .sheet-cta {
+      display: block;
+      width: 100%;
+      height: 44px;
+      background: var(--accent);
+      color: var(--surface-0);
+      border: none;
+      border-radius: 8px;
+      font-size: 14px;
+      font-weight: 600;
+      cursor: pointer;
+      font-family: system-ui, sans-serif;
+      -webkit-tap-highlight-color: transparent;
+    }
+
+    .sheet-empty {
+      font-style: italic;
+      font-size: 14px;
+      color: var(--text-secondary);
+      text-align: center;
+      padding: 20px 0;
+    }
+  </style>
+</head>
+<body>
+  <div id="debug">viewport: <span id="vw"></span>px</div>
+  <div id="grid-container"></div>
+  
+  <div class="bottom-sheet-backdrop" id="backdrop"></div>
+  <div class="bottom-sheet" id="bottom-sheet">
+    <div class="sheet-handle"></div>
+    <div class="sheet-content" id="sheet-content"></div>
+  </div>
+
+  <script>
+    // Update viewport info
+    document.getElementById('vw').textContent = window.innerWidth;
+    window.addEventListener('resize', () => {
+      document.getElementById('vw').textContent = window.innerWidth;
+    });
+
+    const PROVINCES = [
+      // BARIS 1 — Jawa Inti (5 node)
+      { id: 'jk',  code: 'JK',  name: 'DKI Jakarta',          row: 0 },
+      { id: 'jb',  code: 'JB',  name: 'Jawa Barat',            row: 0 },
+      { id: 'jt',  code: 'JT',  name: 'Jawa Tengah',           row: 0 },
+      { id: 'yo',  code: 'YO',  name: 'DI Yogyakarta',         row: 0 },
+      { id: 'bt',  code: 'BT',  name: 'Banten',                row: 0 },
+
+      // BARIS 2 (7 node)
+      { id: 'be',  code: 'BE',  name: 'Bengkulu',              row: 1 },
+      { id: 'la',  code: 'LA',  name: 'Lampung',               row: 1 },
+      { id: 'bb',  code: 'BB',  name: 'Kep. Bangka Belitung',  row: 1 },
+      { id: 'kr',  code: 'KR',  name: 'Kep. Riau',             row: 1 },
+      { id: 'ji',  code: 'JI',  name: 'Jawa Timur',            row: 1 },
+      { id: 'ba',  code: 'BA',  name: 'Bali',                  row: 1 },
+      { id: 'nb',  code: 'NB',  name: 'Nusa Tenggara Barat',   row: 1 },
+
+      // BARIS 3 (9 node)
+      { id: 'ac',  code: 'AC',  name: 'Aceh',                  row: 2 },
+      { id: 'su',  code: 'SU',  name: 'Sumatera Utara',        row: 2 },
+      { id: 'sb',  code: 'SB',  name: 'Sumatera Barat',        row: 2 },
+      { id: 'ri',  code: 'RI',  name: 'Riau',                  row: 2 },
+      { id: 'ja',  code: 'JA',  name: 'Jambi',                 row: 2 },
+      { id: 'kb',  code: 'KB',  name: 'Kalimantan Barat',      row: 2 },
+      { id: 'kt',  code: 'KT',  name: 'Kalimantan Timur',      row: 2 },
+      { id: 'ks',  code: 'KS',  name: 'Kalimantan Selatan',    row: 2 },
+      { id: 'ki',  code: 'KI',  name: 'Kalimantan Utara',      row: 2 },
+
+      // BARIS 4 (9 node)
+      { id: 'sn',  code: 'SN',  name: 'Sulawesi Selatan',      row: 3 },
+      { id: 'st',  code: 'ST',  name: 'Sulawesi Tengah',       row: 3 },
+      { id: 'sg',  code: 'SG',  name: 'Sulawesi Tenggara',     row: 3 },
+      { id: 'go',  code: 'GO',  name: 'Gorontalo',             row: 3 },
+      { id: 'sr',  code: 'SR',  name: 'Sulawesi Barat',        row: 3 },
+      { id: 'sa',  code: 'SA',  name: 'Sulawesi Utara',        row: 3 },
+      { id: 'nt',  code: 'NT',  name: 'Nusa Tenggara Timur',   row: 3 },
+      { id: 'ku',  code: 'KU',  name: 'Kalimantan Tengah',     row: 3 },
+      { id: 'ss',  code: 'SS',  name: 'Sumatera Selatan',      row: 3 },
+
+      // BARIS 5 (8 node)
+      { id: 'ma',  code: 'MA',  name: 'Maluku',                row: 4 },
+      { id: 'mu',  code: 'MU',  name: 'Maluku Utara',          row: 4 },
+      { id: 'pa',  code: 'PA',  name: 'Papua',                 row: 4 },
+      { id: 'pb',  code: 'PB',  name: 'Papua Barat',           row: 4 },
+      { id: 'ps',  code: 'PS',  name: 'Papua Selatan',         row: 4 },
+      { id: 'pt',  code: 'PT',  name: 'Papua Tengah',          row: 4 },
+      { id: 'pp',  code: 'PP',  name: 'Papua Pegunungan',      row: 4 },
+      { id: 'pd',  code: 'PD',  name: 'Papua Barat Daya',      row: 4 },
+    ];
+
+    // Mock vote data
+    const MOCK_VOTES = {
+      'jk': 'tolak', 'jb': 'setuju', 'jt': 'setuju', 'yo': 'abstain', 'bt': 'tolak',
+      'be': 'tolak', 'la': 'setuju', 'bb': null, 'kr': null, 'ji': 'setuju', 'ba': 'setuju', 'nb': 'abstain',
+      'ac': 'setuju', 'su': 'tolak', 'sb': 'setuju', 'ri': null, 'ja': null, 'kb': 'setuju', 'kt': 'tolak', 'ks': null, 'ki': 'setuju',
+      'sn': 'setuju', 'st': null, 'sg': 'abstain', 'go': 'setuju', 'sr': null, 'sa': 'setuju', 'nt': 'tolak', 'ku': null, 'ss': 'setuju',
+      'ma': 'setuju', 'mu': null, 'pa': 'setuju', 'pb': 'abstain', 'ps': null, 'pt': null, 'pp': null, 'pd': null,
+    };
+
+    // Grouping per row
+    const ROWS = [
+      PROVINCES.filter(p => p.row === 0),
+      PROVINCES.filter(p => p.row === 1),
+      PROVINCES.filter(p => p.row === 2),
+      PROVINCES.filter(p => p.row === 3),
+      PROVINCES.filter(p => p.row === 4),
+    ];
+
+    function calculateNodeSize() {
+      const VIEWPORT_WIDTH = document.body.clientWidth;
+      const PADDING_TOTAL = 32;         // 16px kiri + 16px kanan (dari body padding)
+      let USABLE_WIDTH = VIEWPORT_WIDTH - PADDING_TOTAL;
+      // Cap usable width at exactly max-width of body minus padding if viewport is bigger
+      if (VIEWPORT_WIDTH > 390) {
+        USABLE_WIDTH = 390 - PADDING_TOTAL;
+      }
+      
+      const MAX_NODES_PER_ROW = 9;      // Baris terpanjang (baris 3 dan 4)
+      const GAP_PER_ROW = 6;            // CSS gap value
+      const GAPS_IN_MAX_ROW = MAX_NODES_PER_ROW - 1;  // 8 gaps untuk 9 nodes
+      const TOTAL_GAP = GAPS_IN_MAX_ROW * GAP_PER_ROW; // 48px
+      
+      const SAFETY_MARGIN = 4;          // Extra buffer
+      
+      // Max node width agar 9 nodes + 8 gaps muat di usable width
+      const maxNodeWidth = Math.floor(
+        (USABLE_WIDTH - TOTAL_GAP - SAFETY_MARGIN) / MAX_NODES_PER_ROW
+      );
+      
+      // Clamp: min 24px (masih readable), max 38px (tidak terlalu besar)
+      const nodeWidth = Math.max(24, Math.min(38, maxNodeWidth));
+      
+      // Height: proporsi 3:4 (lebar:tinggi) — lebih tinggi dari lebar
+      const nodeHeight = Math.round(nodeWidth * 0.8);
+      
+      // Font size: proporsional dengan ukuran node
+      // Di node 32px lebar, font 9px itu pas. Skala dari sana.
+      const fontSize = Math.max(8, Math.round(nodeWidth * 0.28));
+      
+      console.log('Calculated node size:', {
+        viewportWidth: VIEWPORT_WIDTH,
+        usableWidth: USABLE_WIDTH,
+        nodeWidth,
+        nodeHeight,
+        fontSize,
+        check: `${MAX_NODES_PER_ROW} nodes × ${nodeWidth}px + ${TOTAL_GAP}px gaps = ${MAX_NODES_PER_ROW * nodeWidth + TOTAL_GAP}px (limit: ${USABLE_WIDTH}px)`
+      });
+      
+      return { nodeWidth, nodeHeight, fontSize };
+    }
+
+    function getNodeStatus(provinceId) {
+      return MOCK_VOTES[provinceId] || null;
+    }
+
+    function renderNode(province) {
+      const status = getNodeStatus(province.id);
+      const node = document.createElement('div');
+      
+      node.className = 'node';
+      node.setAttribute('data-status', status || '');
+      node.setAttribute('data-id', province.id);
+      node.setAttribute('data-name', province.name);
+      node.textContent = province.code;
+      
+      // Touch/click handler
+      node.addEventListener('click', () => handleNodeTap(province, status));
+      
+      return node;
+    }
+
+    function renderRow(provinces) {
+      const row = document.createElement('div');
+      row.className = 'node-row';
+      
+      provinces.forEach(p => {
+        row.appendChild(renderNode(p));
+      });
+      
+      return row;
+    }
+
+    function renderLegend() {
+      const legend = document.createElement('div');
+      legend.className = 'node-legend';
+      
+      const items = [
+        { label: 'Setuju',  cls: 'setuju' },
+        { label: 'Abstain', cls: 'abstain' },
+        { label: 'Tolak',   cls: 'tolak' },
+        { label: 'Belum',   cls: 'belum' },
+      ];
+      
+      items.forEach(({ label, cls }) => {
+        const item = document.createElement('div');
+        item.className = 'legend-item';
+        item.innerHTML = `
+          <div class="legend-dot ${cls}"></div>
+          <span>${label}</span>
+        `;
+        legend.appendChild(item);
+      });
+      
+      return legend;
+    }
+
+    function renderGrid() {
+      const container = document.getElementById('grid-container');
+      container.innerHTML = '';
+      
+      // HITUNG UKURAN DULU
+      const { nodeWidth, nodeHeight, fontSize } = calculateNodeSize();
+      
+      const wrapper = document.createElement('div');
+      wrapper.className = 'node-grid-wrapper';
+      
+      // INJECT dynamic styles
+      const styleEl = document.createElement('style');
+      styleEl.textContent = `
+        .node {
+          width: ${nodeWidth}px !important;
+          height: ${nodeHeight}px !important;
+          font-size: ${fontSize}px !important;
+        }
+      `;
+      wrapper.appendChild(styleEl);
+      
+      // Render setiap baris
+      ROWS.forEach(rowProvinces => {
+        wrapper.appendChild(renderRow(rowProvinces));
+      });
+      
+      // Render legenda
+      wrapper.appendChild(renderLegend());
+      
+      container.appendChild(wrapper);
+      
+      // POST-RENDER VALIDATION (kritis!)
+      validateLayout(wrapper);
+    }
+
+    function validateLayout(wrapper) {
+      // Cek apakah ada overflow
+      const wrapperRect = wrapper.getBoundingClientRect();
+      const bodyWidth = document.body.clientWidth;
+      
+      if (wrapperRect.width > bodyWidth) {
+        console.error(
+          '❌ OVERFLOW DETECTED!',
+          'Grid width:', wrapperRect.width,
+          'Body width:', bodyWidth,
+          'Overflow by:', wrapperRect.width - bodyWidth, 'px'
+        );
+      } else {
+        console.log(
+          '✅ No overflow.',
+          'Grid width:', Math.round(wrapperRect.width) + 'px',
+          'Body width:', bodyWidth + 'px',
+          'Remaining space:', Math.round(bodyWidth - wrapperRect.width) + 'px'
+        );
+      }
+      
+      // Cek setiap node
+      const nodes = wrapper.querySelectorAll('.node');
+      let allSameSize = true;
+      let firstWidth = null;
+      
+      nodes.forEach(node => {
+        const rect = node.getBoundingClientRect();
+        if (firstWidth === null) firstWidth = rect.width;
+        if (Math.abs(rect.width - firstWidth) > 1) {
+          allSameSize = false;
+          console.warn('⚠️ Node size inconsistency:', node.dataset.id, rect.width, 'vs expected', firstWidth);
+        }
+      });
+      
+      if (allSameSize) {
+        console.log('✅ All nodes same size:', firstWidth + 'px');
+      }
+      
+      console.log('Total nodes rendered:', nodes.length);
+    }
+
+    // Mock pendapat per provinsi (untuk testing)
+    const MOCK_OPINIONS = {
+      'jk': { text: 'Jakarta sudah terlalu padat. Desentralisasi lebih penting dari pendidikan gratis.', id: 'DPN/SID/014/2026/00000001', date: '14 Mar 2026' },
+      'jb': { text: 'Kami dari keluarga petani. Pendidikan gratis = harapan anak kami kuliah.', id: 'DPN/SID/014/2026/00000002', date: '14 Mar 2026' },
+      'jt': { text: 'Setuju, tapi mulai dari SD-SMP dulu. Universitas gratis butuh dana lebih besar.', id: 'DPN/SID/014/2026/00000003', date: '14 Mar 2026' },
+      'go': { text: 'Kami di pelosok Gorontalo butuh guru, bukan gedung megah. Prioritaskan SDM.', id: 'DPN/SID/014/2026/00000004', date: '14 Mar 2026' },
+      'be': { text: 'Gaji guru honorer Rp 500 ribu. Mau gratis atau bayar, kalau gurunya tidak sejahtera, hasilnya sama.', id: 'DPN/SID/014/2026/00000005', date: '14 Mar 2026' },
+    };
+
+    // Handler untuk tap node
+    function handleNodeTap(province, status) {
+      console.log('Tapped:', province.name, '| Status:', status || 'belum vote');
+      
+      // Hapus selected dari semua node
+      document.querySelectorAll('.node.selected').forEach(n => {
+        n.classList.remove('selected');
+      });
+      
+      // Tambah selected ke node yang di-tap
+      const node = document.querySelector(`[data-id="${province.id}"]`);
+      if (node) node.classList.add('selected');
+      
+      showBottomSheet(province, status);
+    }
+
+    function showBottomSheet(province, status) {
+      const backdrop = document.getElementById('backdrop');
+      const sheet = document.getElementById('bottom-sheet');
+      const content = document.getElementById('sheet-content');
+      
+      const opinion = MOCK_OPINIONS[province.id];
+      const positionLabel = status === 'setuju' ? 'Setuju' : status === 'tolak' ? 'Tolak' : status === 'abstain' ? 'Abstain' : null;
+      
+      if (status === null) {
+        // Province belum ada vote
+        content.innerHTML = `
+          <div class="sheet-header">
+            <span class="sheet-province-name">Warga ${province.name}</span>
+            <div class="sheet-close" onclick="closeBottomSheet()">✕</div>
+          </div>
+          <div class="sheet-empty">Belum ada suara dari provinsi ini.</div>
+          <button class="sheet-cta" onclick="closeBottomSheet()">
+            Sampaikan Pendapatmu →
+          </button>
+        `;
+      } else {
+        content.innerHTML = `
+          <div class="sheet-header">
+            <span class="sheet-province-name">Warga ${province.name}</span>
+            <div class="sheet-close" onclick="closeBottomSheet()">✕</div>
+          </div>
+          <div class="sheet-position" data-pos="${status}">
+            <div class="sheet-position-dot" data-pos="${status}"></div>
+            ${positionLabel}
+          </div>
+          ${opinion ? `
+            <div class="sheet-quote" data-pos="${status}">
+              "${opinion.text}"
+            </div>
+            <div class="sheet-meta">${opinion.id} · ${opinion.date}</div>
+          ` : ''}
+          <button class="sheet-cta" onclick="closeBottomSheet()">
+            Sampaikan Pendapatmu →
+          </button>
+        `;
+      }
+      
+      // Show
+      requestAnimationFrame(() => {
+        backdrop.classList.add('visible');
+        sheet.classList.add('visible');
+      });
+    }
+
+    function closeBottomSheet() {
+      const backdrop = document.getElementById('backdrop');
+      const sheet = document.getElementById('bottom-sheet');
+      
+      backdrop.classList.remove('visible');
+      sheet.classList.remove('visible');
+      
+      // Remove selected state dari nodes
+      document.querySelectorAll('.node.selected').forEach(n => {
+        n.classList.remove('selected');
+      });
+    }
+
+    // Close saat tap backdrop
+    document.getElementById('backdrop').addEventListener('click', closeBottomSheet);
+
+    // Initial Render
+    renderGrid();
+    
+    // Setup resize listener outside of render grid to prevent memory leaks/duplicate listeners
+    let resizeTimer;
+    window.addEventListener('resize', () => {
+      clearTimeout(resizeTimer);
+      resizeTimer = setTimeout(() => {
+        renderGrid();
+      }, 50);
+    });
+  </script>
+</body>
+</html>

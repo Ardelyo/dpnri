@@ -7,7 +7,7 @@ import { CharacterSheet } from './CharacterSheet';
 import { RoomBottomBar } from './RoomBottomBar';
 import { RoomHeader } from './RoomHeader';
 import { PodiumSection } from './PodiumSection';
-import { HemicycleGrid } from './HemicycleGrid';
+import { ProvinceNodeGrid } from './ProvinceNodeGrid';
 import { SuaraTerbaru } from './SuaraTerbaru';
 import { IndonesiaMap } from '../Map/IndonesiaMap';
 
@@ -156,8 +156,7 @@ export const RoomScreen: React.FC = () => {
         {/* Podium & Summary */}
         <PodiumSection votes={session.votes} totalSuara={opinions.length} />
 
-        {/* Hemicycle nodes */}
-        <HemicycleGrid
+        <ProvinceNodeGrid
           provinceVotes={provinceVotes}
           newlyVotedProv={newlyVotedProv}
           selectedProv={selectedProv}
