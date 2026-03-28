@@ -56,18 +56,18 @@ export const SpeakScreen: React.FC = () => {
       display: 'flex',
       flexDirection: 'column',
       height: '100dvh',
-      maxWidth: '500px', // Mobile-first constraint
+      maxWidth: '500px',
       margin: '0 auto',
     }}>
-      {/* 1. Header & Breadcrumb */}
-      <div style={{ padding: '0 16px 16px' }}>
+      {/* 1. Header */}
+      <div style={{ padding: '0 16px 8px' }}>
         <button
           onClick={() => setScreen('room')}
           style={{
-            height: '44px',
+            height: '48px',
             background: 'none',
             border: 'none',
-            color: 'var(--text-secondary)',
+            color: 'var(--text-tertiary)',
             fontSize: '14px',
             fontFamily: 'var(--font-ui)',
             cursor: 'pointer',
@@ -75,97 +75,88 @@ export const SpeakScreen: React.FC = () => {
             display: 'flex',
             alignItems: 'center',
             WebkitTapHighlightColor: 'transparent',
+            fontWeight: 500,
           }}
         >
           ← Kembali ke Sidang
         </button>
+      </div>
+
+      <div style={{ flex: 1, overflowY: 'auto', padding: '0 16px 24px' }}>
         <div style={{
           fontSize: '11px',
-          fontWeight: 600,
+          fontWeight: 700,
           color: 'var(--accent)',
           fontFamily: 'var(--font-ui)',
-          letterSpacing: '0.08em',
+          letterSpacing: '0.1em',
           textTransform: 'uppercase',
-          marginBottom: '4px'
+          marginBottom: '8px'
         }}>
           NAIK PODIUM
         </div>
         <h1 style={{
           fontFamily: 'var(--font-display)',
-          fontSize: '24px',
-          margin: 0,
+          fontSize: '28px',
+          margin: '0 0 24px',
           color: 'var(--text-primary)',
-          fontWeight: 400
+          fontWeight: 400,
+          lineHeight: 1.1
         }}>
-          Sampaikan Pendapatmu
+          Sampaikan<br />Pendapatmu
         </h1>
-      </div>
 
-      {/* Scrollable Form */}
-      <div style={{ flex: 1, overflowY: 'auto', padding: '0 16px' }}>
-        
         {/* 2. Context Box */}
         <div style={{
           background: 'var(--surface-1)',
-          border: '1px solid var(--surface-3)',
+          border: '1px solid var(--border-faint)',
           borderRadius: 'var(--radius-md)',
-          padding: '14px',
-          marginBottom: '20px',
-          overflow: 'hidden',
-          display: 'flex',
-          flexDirection: 'column',
-          justifyContent: 'center'
+          padding: '16px',
+          marginBottom: '24px',
         }}>
           <div style={{
             fontSize: '9px',
-            fontWeight: 600,
-            color: 'var(--accent)',
+            fontWeight: 700,
+            color: 'var(--text-tertiary)',
             fontFamily: 'var(--font-ui)',
             letterSpacing: '0.08em',
-            marginBottom: '4px'
+            marginBottom: '6px'
           }}>
-            SIDANG #{activeSession.nomor.toString().padStart(3, '0')}
+            TEMA SIDANG #{activeSession.nomor.toString().padStart(3, '0')}
           </div>
           <div style={{
             fontFamily: 'var(--font-display)',
-            fontSize: '16px',
+            fontSize: '17px',
             color: 'var(--text-primary)',
-            lineHeight: 1.4,
-            marginBottom: '4px',
-            whiteSpace: 'nowrap',
-            overflow: 'hidden',
-            textOverflow: 'ellipsis'
+            lineHeight: 1.3,
+            marginBottom: '6px',
           }}>
             {activeSession.judul}
           </div>
           <div style={{
-            fontFamily: 'var(--font-display)',
+            fontFamily: 'var(--font-ui)',
             fontStyle: 'italic',
             fontSize: '13px',
             color: 'var(--text-secondary)',
-            lineHeight: 1.4,
-            display: '-webkit-box',
-            WebkitLineClamp: 2,
-            WebkitBoxOrient: 'vertical',
-            overflow: 'hidden'
+            lineHeight: 1.5,
+            opacity: 0.8
           }}>
-            {activeSession.pertanyaan}
+            "{activeSession.pertanyaan}"
           </div>
         </div>
 
         {/* 3. Pilih Posisimu */}
-        <div style={{ marginBottom: '20px' }}>
+        <div style={{ marginBottom: '28px' }}>
           <div style={{
             fontSize: '11px',
-            fontWeight: 600,
+            fontWeight: 700,
             color: 'var(--accent)',
             fontFamily: 'var(--font-ui)',
             letterSpacing: '0.08em',
-            marginBottom: '10px'
+            marginBottom: '12px'
           }}>
             PILIH POSISIMU
           </div>
-          <div style={{ display: 'flex', gap: '8px' }}>
+          <div style={{ display: 'flex', flexDirection: 'column', gap: '10px' }}>
             {VOTE_OPTIONS.map(opt => {
               const checked = myVote === opt.value;
               return (
@@ -173,36 +164,50 @@ export const SpeakScreen: React.FC = () => {
                   key={opt.value}
                   onClick={() => setMyVote(opt.value)}
                   style={{
-                    flex: 1,
-                    height: '60px',
+                    width: '100%',
+                    padding: '14px 16px',
                     borderRadius: 'var(--radius-md)',
-                    border: checked ? `2px solid ${opt.color}` : '1px solid var(--surface-3)',
-                    background: checked ? `rgba(${opt.value === 'abstain' ? '138,132,117' : opt.value === 'setuju' ? '122,156,110' : '181,86,78'}, 0.1)` : 'var(--surface-2)',
+                    border: '1px solid',
+                    borderColor: checked ? opt.color : 'var(--border-faint)',
+                    background: checked ? `var(--surface-1)` : 'var(--surface-0)',
                     display: 'flex',
-                    flexDirection: 'column',
                     alignItems: 'center',
-                    justifyContent: 'center',
+                    justifyContent: 'space-between',
                     cursor: 'pointer',
                     transition: 'all 200ms ease-out',
                     WebkitTapHighlightColor: 'transparent',
-                    opacity: myVote && !checked ? 0.5 : 1
+                    boxShadow: checked ? 'var(--shadow-sm)' : 'none',
                   }}
                 >
-                  <span style={{
-                    fontSize: '15px',
-                    fontWeight: 600,
-                    color: checked ? 'var(--text-primary)' : 'var(--text-secondary)',
-                    fontFamily: 'var(--font-ui)',
+                  <div style={{ textAlign: 'left' }}>
+                    <div style={{
+                      fontSize: '15px',
+                      fontWeight: 600,
+                      color: checked ? 'var(--text-primary)' : 'var(--text-secondary)',
+                      fontFamily: 'var(--font-ui)',
+                    }}>
+                      {opt.label}
+                    </div>
+                    <div style={{
+                      fontSize: '11px',
+                      color: 'var(--text-tertiary)',
+                      fontFamily: 'var(--font-ui)',
+                    }}>
+                      {opt.sub}
+                    </div>
+                  </div>
+                  <div style={{
+                    width: '18px',
+                    height: '18px',
+                    borderRadius: '50%',
+                    border: `1.5px solid ${checked ? opt.color : 'var(--border-subtle)'}`,
+                    display: 'flex',
+                    alignItems: 'center',
+                    justifyContent: 'center',
+                    background: checked ? opt.color : 'transparent',
                   }}>
-                    {opt.label}
-                  </span>
-                  <span style={{
-                    fontSize: '11px',
-                    color: checked ? 'var(--text-secondary)' : 'var(--text-tertiary)',
-                    fontFamily: 'var(--font-ui)',
-                  }}>
-                    {opt.sub}
-                  </span>
+                    {checked && <div style={{ width: '6px', height: '6px', borderRadius: '50%', background: 'white' }} />}
+                  </div>
                 </button>
               );
             })}
@@ -210,69 +215,65 @@ export const SpeakScreen: React.FC = () => {
         </div>
 
         {/* 4. Ceritakan Alasanmu */}
-        <div style={{ marginBottom: '24px' }}>
+        <div style={{ marginBottom: '32px' }}>
           <div style={{
             display: 'flex',
             justifyContent: 'space-between',
-            marginBottom: '8px'
+            marginBottom: '10px'
           }}>
             <div style={{
               fontSize: '11px',
-              fontWeight: 600,
+              fontWeight: 700,
               color: 'var(--accent)',
               fontFamily: 'var(--font-ui)',
               letterSpacing: '0.08em'
             }}>
               CERITAKAN ALASANMU
             </div>
-            <div style={{
-              fontSize: '11px',
-              color: 'var(--text-tertiary)',
-              fontFamily: 'var(--font-ui)'
-            }}>
-              OPSIONAL
-            </div>
           </div>
           <textarea
             ref={textareaRef}
             value={text}
             onChange={(e) => setText(e.target.value.slice(0, 300))}
-            placeholder="Teman saya di NTT harus jalan 2 jam ke sekolah."
+            placeholder="Tuliskan keresahanmu di sini..."
             style={{
               width: '100%',
-              height: '88px',
+              height: '120px',
               background: 'var(--surface-1)',
-              border: '1px solid var(--surface-3)',
+              border: '1px solid var(--border-subtle)',
               borderRadius: 'var(--radius-md)',
-              padding: '12px',
+              padding: '16px',
               color: 'var(--text-primary)',
               fontFamily: 'var(--font-ui)',
               fontSize: '14px',
-              lineHeight: 1.5,
+              lineHeight: 1.6,
               resize: 'none',
               outline: 'none',
-              transition: 'border-color 200ms ease-out'
+              transition: 'all 200ms ease-out',
+              boxShadow: 'inset 0 2px 4px rgba(0,0,0,0.02)'
             }}
             onFocus={(e) => e.target.style.borderColor = 'var(--accent)'}
-            onBlur={(e) => e.target.style.borderColor = 'var(--surface-3)'}
+            onBlur={(e) => e.target.style.borderColor = 'var(--border-subtle)'}
           />
           <div style={{
             display: 'flex',
             justifyContent: 'space-between',
-            marginTop: '8px'
+            marginTop: '10px'
           }}>
             <div style={{
               fontSize: '11px',
               color: 'var(--text-tertiary)',
               fontFamily: 'var(--font-ui)',
-              fontStyle: 'italic'
+              fontStyle: 'italic',
+              maxWidth: '70%',
             }}>
-              Minimal 20 huruf agar tampil di kartu suara
+              {text.length < 20 ? 'Min. 20 karakter untuk tampil di kartu suara' : 'Sangat membantu dalam pengambilan keputusan'}
             </div>
             <div style={{
               fontSize: '11px',
-              color: 'var(--text-tertiary)',
-              fontFamily: 'var(--font-ui)'
+              color: text.length >= 300 ? 'var(--tolak)' : 'var(--text-tertiary)',
+              fontFamily: 'var(--font-ui)',
+              fontWeight: 600
             }}>
               {text.length}/300
             </div>
@@ -284,23 +285,25 @@ export const SpeakScreen: React.FC = () => {
           disabled={!canSubmit}
           style={{
             width: '100%',
-            height: '48px',
+            height: '52px',
             background: canSubmit ? 'var(--accent)' : 'var(--surface-2)',
             color: canSubmit ? 'var(--surface-0)' : 'var(--text-disabled)',
             borderRadius: 'var(--radius-md)',
             border: 'none',
             fontSize: '15px',
-            fontWeight: 600,
+            fontWeight: 700,
             fontFamily: 'var(--font-ui)',
             cursor: canSubmit ? 'pointer' : 'default',
             display: 'flex',
             alignItems: 'center',
             justifyContent: 'center',
             transition: 'all 200ms ease-out',
-            marginBottom: 'max(24px, env(safe-area-inset-bottom))'
+            boxShadow: canSubmit ? 'var(--shadow-md)' : 'none',
+            letterSpacing: '0.05em',
+            textTransform: 'uppercase',
           }}
         >
-          {status === 'loading' ? 'Mengirim...' : (myVote ? 'Kirim ke Sidang' : 'Pilih posisimu dahulu')}
+          {status === 'loading' ? 'Memproses...' : (myVote ? `Sampaikan Sebagai Pendapat` : 'Tentukan Sikap Terlebih Dahulu')}
         </button>
       </div>
     </div>

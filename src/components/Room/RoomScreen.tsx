@@ -8,6 +8,7 @@ import { RoomHeader } from './RoomHeader';
 import { PodiumSection } from './PodiumSection';
 import { HemicycleGrid } from './HemicycleGrid';
 import { SuaraTerbaru } from './SuaraTerbaru';
+import { IndonesiaMap } from '../Map/IndonesiaMap';
 
 export const RoomScreen: React.FC = () => {
   const opinions = useDPNStore((s: DPNState) => s.opinions);
@@ -126,6 +127,14 @@ export const RoomScreen: React.FC = () => {
 
         {/* 6. SUARA TERBARU */}
         <SuaraTerbaru opinions={opinions} />
+      </div>
+
+      {/* 7. REGIONAL PULSE (MAP) */}
+      <div 
+        onClick={() => setScreen('map')}
+        style={{ cursor: 'pointer' }}
+      >
+        <IndonesiaMap fullscreen={false} onClose={() => setScreen('map')} />
       </div>
 
       <RoomBottomBar onBicara={handleBicara} hasVoted={hasVoted} />

@@ -8,6 +8,8 @@ import { LandingScreen } from './components/Onboarding/LandingScreen';
 import { ProvinsiPicker } from './components/Onboarding/ProvinsiPicker';
 import { AppLayout } from './layouts/AppLayout';
 
+import { IndonesiaMap } from './components/Map/IndonesiaMap';
+
 function App() {
   const screen = useDPNStore((s: DPNState) => s.screen);
   const showShareCard = useDPNStore((s: DPNState) => s.showShareCard);
@@ -30,6 +32,7 @@ function App() {
       {/* Full screen overlays */}
       {screen === 'speak' && <SpeakScreen />}
       {screen === 'archive' && <ArchiveScreen />}
+      {screen === 'map' && <IndonesiaMap fullscreen onClose={() => useDPNStore.getState().setScreen('room')} />}
 
       {/* Share card */}
       {showShareCard && <ShareCard onClose={() => useDPNStore.getState().setShowShareCard(false)} opinion={useDPNStore.getState().lastSubmittedOpinion} />}

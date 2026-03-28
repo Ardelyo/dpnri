@@ -32,24 +32,29 @@ export const HemicycleGrid: React.FC<HemicycleGridProps> = ({
     return () => window.removeEventListener('resize', handleResize);
   }, []);
 
-  const { nodes, scale, areaHeight, centerY } = useMemo(() => {
+  const { nodes, scale, areaHeight } = useMemo(() => {
     const padding = 16;
-    const availableWidth = Math.min(viewportWidth, 450) - (padding * 2);
+    const availableWidth = Math.min(viewportWidth, 500) - (padding * 2);
     
-    // Calculate max horizontal extent to determine scale
-    const maxExtentX = 240 * 0.9397;
-    const baseWidth = maxExtentX * 2;
-    
+    // We want the widest arc to fit in availableWidth
+    // Max radius in config is 240. So baseWidth ~ 480.
+    const baseWidth = 480; 
     let scale = availableWidth / baseWidth;
-    if (scale > 1) scale = 0.8; 
-    
+    if (scale > 1) scale = 1;
+
     const centerX = viewportWidth / 2;
-    const centerY = 260; // Position center at the bottom to grow arcs upward
+    // We'll place the "focus point" of the arcs slightly below the top of the component
+    // and grow the arcs downwards or upwards. 
+    // To make it look like a parliament facing the podium (which is at the top),
+    // the arcs should be "frown" shapes (concave down) or "smile" shapes (concave up).
+    // Let's go with concave up (smile) for a modern "gathering" feel.
+    const centerY = 20; 
 
     const nodePositions = ARC_CONFIG.flatMap((arc) => {
       const radius = arc.radius * scale;
-      const angleStart = 200;
-      const angleEnd = 340;
+      // Angle 20 to 160 degrees (a nice arc)
+      const angleStart = 30;
+      const angleEnd = 150;
       const angleRange = angleEnd - angleStart;
 
       return arc.provs.map((provName, i) => {
@@ -71,10 +76,10 @@ export const HemicycleGrid: React.FC<HemicycleGridProps> = ({
       });
     }).filter(Boolean) as { province: Province; x: number; y: number; rowFraction: number }[];
 
-    // Calculate height needed: centerY is the bottom base + legend space
-    const areaHeight = centerY + 40; 
+    // areaHeight should be max(y) + padding
+    const maxScrollY = Math.max(...nodePositions.map(n => n.y), 100) + 60;
 
-    return { nodes: nodePositions, scale, areaHeight, centerY };
+    return { nodes: nodePositions, scale, areaHeight: maxScrollY };
   }, [viewportWidth]);
 
   return (
@@ -97,17 +102,17 @@ export const HemicycleGrid: React.FC<HemicycleGridProps> = ({
       >
         {ARC_CONFIG.map((arc, i) => {
           const r = arc.radius * scale;
-          const startX = viewportWidth / 2 + r * Math.cos(200 * Math.PI / 180);
-          const startY = centerY + r * Math.sin(200 * Math.PI / 180);
-          const endX = viewportWidth / 2 + r * Math.cos(340 * Math.PI / 180);
-          const endY = centerY + r * Math.sin(340 * Math.PI / 180);
+          const startX = viewportWidth / 2 + r * Math.cos(30 * Math.PI / 180);
+          const startY = 20 + r * Math.sin(30 * Math.PI / 180);
+          const endX = viewportWidth / 2 + r * Math.cos(150 * Math.PI / 180);
+          const endY = 20 + r * Math.sin(150 * Math.PI / 180);
           
           return (
             <path
               key={i}
               d={`M ${startX} ${startY} A ${r} ${r} 0 0 1 ${endX} ${endY}`}
               fill="none"
-              stroke="var(--text-tertiary)"
+              stroke="var(--border-subtle)"
               strokeWidth="1"
               strokeDasharray="2 4"
             />

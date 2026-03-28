@@ -168,15 +168,39 @@ export const ShareCard: React.FC<ShareCardProps> = ({ opinion, onClose }) => {
           ↗ Bagikan
         </button>
         <button
+          onClick={() => {
+            onClose();
+            useDPNStore.getState().setScreen('map');
+          }}
+          style={{
+            width: '100%',
+            height: '48px',
+            background: 'rgba(201, 162, 39, 0.15)',
+            color: 'var(--accent)',
+            borderRadius: 'var(--radius-md)',
+            border: '1px solid var(--accent)',
+            fontSize: '15px',
+            fontWeight: 700,
+            cursor: 'pointer',
+            display: 'flex',
+            alignItems: 'center',
+            justifyContent: 'center',
+            marginTop: '12px',
+          }}
+        >
+          🌏 Lihat Peta Suara Nasional
+        </button>
+
+        <button
           onClick={onClose}
           style={{
             width: '100%',
             height: '44px',
             background: 'none',
             border: 'none',
-            color: 'var(--text-secondary)',
+            color: 'var(--text-tertiary)',
             fontSize: '14px',
-            marginTop: '12px',
+            marginTop: '16px',
             cursor: 'pointer',
           }}
         >

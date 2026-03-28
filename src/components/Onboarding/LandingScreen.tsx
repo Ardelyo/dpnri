@@ -1,100 +1,107 @@
 import React from 'react';
 import { useDPNStore } from '../../store/dpnStore';
-import type { DPNState } from '../../types';
 
 export const LandingScreen: React.FC = () => {
-  const setScreen = useDPNStore((s: DPNState) => s.setScreen);
-  const userProvinsi = useDPNStore((s: DPNState) => s.userProvinsi);
-
-  // If user already registered, we should ideally not be here, 
-  // but if we are, allow skip.
-  const handleStart = () => {
-    if (userProvinsi) {
-      setScreen('room');
-    } else {
-      setScreen('onboarding'); // This will show the Province Picker
-    }
-  };
+  const setScreen = useDPNStore(s => s.setScreen);
 
   return (
     <div style={{
       position: 'fixed',
       inset: 0,
       background: 'var(--surface-0)',
+      zIndex: 100,
       display: 'flex',
       flexDirection: 'column',
-      justifyContent: 'space-between',
+      justifyContent: 'center',
+      alignItems: 'center',
       padding: '24px',
-      zIndex: 300,
       textAlign: 'center',
+      overflow: 'hidden',
     }}>
-      {/* Header Area */}
-      <div style={{ marginTop: '20vh' }}>
-        <div style={{ fontSize: '32px', marginBottom: '16px' }}>🏛</div>
-        <div style={{ 
-          fontSize: '11px', 
-          fontWeight: 600, 
-          color: 'var(--accent)', 
-          letterSpacing: '0.08em', 
-          fontFamily: 'var(--font-ui)',
-          textTransform: 'uppercase'
-        }}>
-          DEWAN PERWAKILAN NETIZEN
-        </div>
-      </div>
-
-      {/* Value Proposition */}
-      <div style={{ paddingBottom: '16vh' }}>
-        <h1 style={{
-          fontFamily: 'var(--font-display)',
-          fontSize: '28px',
-          color: 'var(--text-primary)',
-          margin: '0 0 12px',
-          fontWeight: 400,
-          lineHeight: 1.1
-        }}>
-          Suaramu untuk Indonesia.
-        </h1>
-        <p style={{
-          fontFamily: 'var(--font-ui)',
-          fontSize: '14px',
-          color: 'var(--text-secondary)',
-          lineHeight: 1.6,
-          maxWidth: '280px',
-          margin: '0 auto',
-        }}>
-          Ikut voting isu kebijakan nyata. Bandingkan suara rakyat dengan keputusan DPR. Semua tercatat permanen.
-        </p>
-
-        <button
-          onClick={handleStart}
-          style={{
-            marginTop: '32px',
-            width: '100%',
-            height: '48px',
-            background: 'var(--accent)',
-            color: 'var(--surface-0)',
-            borderRadius: 'var(--radius-md)',
-            border: 'none',
-            fontSize: '15px',
-            fontWeight: 700,
-            cursor: 'pointer',
-            fontFamily: 'var(--font-ui)'
-          }}
-        >
-          Masuk sebagai Warga →
-        </button>
-      </div>
-
-      {/* Footer */}
+      {/* Background Decorative Flare */}
       <div style={{
-        paddingBottom: 'env(safe-area-inset-bottom, 24px)',
-        fontSize: '11px',
-        color: 'var(--text-tertiary)',
-        fontStyle: 'italic',
-        fontFamily: 'var(--font-ui)'
+        position: 'absolute',
+        top: '-10%',
+        left: '50%',
+        transform: 'translateX(-50%)',
+        width: '120%',
+        height: '40%',
+        background: 'radial-gradient(ellipse at center, rgba(201,162,39,0.08) 0%, transparent 70%)',
+        zIndex: -1,
+        pointerEvents: 'none',
+      }} />
+
+      <div style={{
+        fontSize: '12px',
+        color: 'var(--accent)',
+        fontWeight: 700,
+        letterSpacing: '0.2em',
+        textTransform: 'uppercase',
+        marginBottom: '16px',
+        fontFamily: 'var(--font-ui)',
       }}>
-        Platform aspirasi publik. Bukan lembaga negara.
+        PROYEK DEMOKRASI DIGITAL
+      </div>
+
+      <h1 style={{
+        fontFamily: 'var(--font-display)',
+        fontSize: '42px',
+        lineHeight: 1,
+        color: 'var(--text-primary)',
+        margin: '0 0 16px',
+        fontWeight: 400,
+      }}>
+        DEWAN <br />
+        PERWAKILAN <br />
+        NETIZEN
+      </h1>
+
+      <p style={{
+        fontFamily: 'var(--font-ui)',
+        fontSize: '15px',
+        lineHeight: 1.6,
+        color: 'var(--text-secondary)',
+        maxWidth: '300px',
+        margin: '0 0 48px',
+        fontWeight: 400,
+      }}>
+        Suaramu adalah kedaulatan. Ikut serta dalam sidang rakyat digital pertama di Indonesia.
+      </p>
+
+      <button
+        onClick={() => setScreen('onboarding')}
+        style={{
+          width: '200px',
+          height: '52px',
+          background: 'var(--accent)',
+          border: 'none',
+          borderRadius: 'var(--radius-md)',
+          color: 'var(--surface-0)',
+          fontWeight: 700,
+          fontSize: '15px',
+          fontFamily: 'var(--font-ui)',
+          cursor: 'pointer',
+          letterSpacing: '0.05em',
+          textTransform: 'uppercase',
+          boxShadow: 'var(--shadow-lg)',
+          transition: 'transform 200ms ease',
+        }}
+        onMouseEnter={(e) => e.currentTarget.style.transform = 'scale(1.02)'}
+        onMouseLeave={(e) => e.currentTarget.style.transform = 'scale(1)'}
+      >
+        MASUK SIDANG
+      </button>
+
+      <div style={{
+        position: 'absolute',
+        bottom: '32px',
+        fontSize: '10px',
+        color: 'var(--text-tertiary)',
+        fontFamily: 'var(--font-ui)',
+        letterSpacing: '0.05em',
+        opacity: 0.6,
+      }}>
+        VERSI KONSEP 0.2 • 2024
       </div>
     </div>
   );

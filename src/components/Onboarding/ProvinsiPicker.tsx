@@ -45,66 +45,98 @@ export const ProvinsiPicker: React.FC = () => {
         flexDirection: 'column',
         alignItems: 'center',
         justifyContent: 'center',
-        padding: '24px',
-        zIndex: 400,
+        padding: '32px',
+        zIndex: 500,
         textAlign: 'center',
       }}>
+        {/* Decorative Circle */}
         <div style={{
-          width: '48px',
-          height: '48px',
+          width: '80px',
+          height: '80px',
           borderRadius: '50%',
-          background: 'none',
-          border: '2px solid var(--accent)',
+          background: 'var(--surface-1)',
+          border: '1px solid var(--border-subtle)',
           display: 'flex',
           alignItems: 'center',
           justifyContent: 'center',
-          fontSize: '24px',
+          fontSize: '32px',
           color: 'var(--accent)',
-          marginBottom: '24px'
+          marginBottom: '32px',
+          boxShadow: 'var(--shadow-sm)',
         }}>
           ✓
         </div>
-        <div style={{ fontSize: '13px', color: 'var(--text-secondary)', marginBottom: '8px' }}>
-          Terdaftar sebagai
-        </div>
+
         <div style={{ 
+          fontSize: '12px', 
+          fontWeight: 700,
+          color: 'var(--accent)', 
+          letterSpacing: '0.1em',
+          textTransform: 'uppercase',
+          marginBottom: '8px',
+          fontFamily: 'var(--font-ui)',
+        }}>
+          IDENTITAS TERVERIFIKASI
+        </div>
+        
+        <h1 style={{ 
           fontFamily: 'var(--font-display)', 
-          fontSize: '20px', 
+          fontSize: '28px', 
           color: 'var(--text-primary)',
-          marginBottom: '32px'
+          fontWeight: 400,
+          margin: '0 0 12px',
+          lineHeight: 1.2,
         }}>
           Warga {selected}
-        </div>
+        </h1>
+
+        <p style={{
+          fontFamily: 'var(--font-ui)',
+          fontSize: '14px',
+          color: 'var(--text-secondary)',
+          lineHeight: 1.6,
+          maxWidth: '260px',
+          margin: '0 0 40px',
+        }}>
+          Terima kasih telah bergabung. Representasimu sangat berarti bagi demokrasi kita.
+        </p>
 
         <button
           onClick={handleConfirm}
           style={{
             width: '100%',
-            height: '48px',
+            maxWidth: '240px',
+            height: '52px',
             background: 'var(--accent)',
             color: 'var(--surface-0)',
             borderRadius: 'var(--radius-md)',
             border: 'none',
             fontSize: '15px',
             fontWeight: 700,
-            cursor: 'pointer'
+            fontFamily: 'var(--font-ui)',
+            cursor: 'pointer',
+            boxShadow: 'var(--shadow-md)',
+            letterSpacing: '0.05em',
           }}
         >
-          Masuk ke Sidang →
+          MULAI BERSIDANG
         </button>
 
         <button
           onClick={() => setConfirmed(false)}
           style={{
-            marginTop: '16px',
+            marginTop: '20px',
             background: 'none',
             border: 'none',
-            color: 'var(--text-secondary)',
+            color: 'var(--text-tertiary)',
             fontSize: '13px',
-            cursor: 'pointer'
+            fontFamily: 'var(--font-ui)',
+            cursor: 'pointer',
+            textDecoration: 'underline',
+            textUnderlineOffset: '4px',
           }}
         >
-          Bukan provinsimu? Ubah
+          Salah pilih? Ubah Provinsi
         </button>
       </div>
     );
@@ -118,28 +150,35 @@ export const ProvinsiPicker: React.FC = () => {
       display: 'flex',
       flexDirection: 'column',
       zIndex: 400,
+      maxWidth: '500px',
+      margin: '0 auto',
     }}>
       {/* Header */}
-      <div style={{ padding: '0 16px 16px', flexShrink: 0 }}>
+      <div style={{ padding: '0 16px 12px', flexShrink: 0 }}>
         <button
           onClick={() => setScreen('landing')}
           style={{
-            height: '44px',
+            height: '48px',
             background: 'none',
             border: 'none',
-            color: 'var(--text-secondary)',
+            color: 'var(--text-tertiary)',
             fontSize: '14px',
+            fontFamily: 'var(--font-ui)',
             cursor: 'pointer',
-            padding: '12px 0'
+            padding: '12px 0',
+            display: 'flex',
+            alignItems: 'center',
+            fontWeight: 500,
           }}
         >
           ← Kembali
         </button>
         <div style={{
           fontSize: '11px',
-          fontWeight: 600,
+          fontWeight: 700,
           color: 'var(--accent)',
-          letterSpacing: '0.08em',
+          fontFamily: 'var(--font-ui)',
+          letterSpacing: '0.1em',
           textTransform: 'uppercase',
           marginBottom: '4px'
         }}>
@@ -147,32 +186,36 @@ export const ProvinsiPicker: React.FC = () => {
         </div>
         <h1 style={{
           fontFamily: 'var(--font-display)',
-          fontSize: '24px',
-          margin: '0 0 4px',
+          fontSize: '28px',
+          margin: '0 0 6px',
           color: 'var(--text-primary)',
-          fontWeight: 400
+          fontWeight: 400,
+          lineHeight: 1.1,
         }}>
-          Kamu dari mana?
+          Domisili Anda?
         </h1>
         <p style={{
-          fontSize: '13px',
+          fontSize: '14px',
           color: 'var(--text-secondary)',
-          margin: 0
+          fontFamily: 'var(--font-ui)',
+          margin: 0,
+          lineHeight: 1.4,
         }}>
-          Menentukan representasi suaramu.
+          Pilih provinsi asal untuk memvalidasi <br />representasi suara Anda.
         </p>
       </div>
 
       {/* Search bar */}
-      <div style={{ padding: '0 16px 16px', flexShrink: 0 }}>
+      <div style={{ padding: '16px', flexShrink: 0 }}>
         <div style={{ position: 'relative' }}>
           <span style={{ 
             position: 'absolute', 
-            left: '12px', 
+            left: '16px', 
             top: '50%', 
             transform: 'translateY(-50%)',
             color: 'var(--text-tertiary)',
-            fontSize: '16px'
+            fontSize: '16px',
+            opacity: 0.7
           }}>
             🔍
           </span>
@@ -184,59 +227,68 @@ export const ProvinsiPicker: React.FC = () => {
             onChange={(e) => setSearch(e.target.value)}
             style={{
               width: '100%',
-              height: '44px',
+              height: '48px',
               background: 'var(--surface-1)',
-              border: '1px solid var(--surface-3)',
+              border: '1px solid var(--border-subtle)',
               borderRadius: 'var(--radius-md)',
-              padding: '0 12px 0 40px',
+              padding: '0 16px 0 44px',
               color: 'var(--text-primary)',
-              fontSize: '14px',
+              fontFamily: 'var(--font-ui)',
+              fontSize: '15px',
               outline: 'none',
-              fontStyle: 'italic'
+              transition: 'all 200ms ease',
             }}
+            onFocus={(e) => e.target.style.borderColor = 'var(--accent)'}
+            onBlur={(e) => e.target.style.borderColor = 'var(--border-subtle)'}
           />
         </div>
       </div>
 
       {/* List - Grouped */}
-      <div style={{ flex: 1, overflowY: 'auto' }}>
+      <div style={{ flex: 1, overflowY: 'auto', paddingBottom: '40px' }}>
         {filteredGroups.map(group => (
           <div key={group.region}>
             <div style={{
               position: 'sticky',
               top: 0,
-              background: 'var(--surface-0)',
-              padding: '8px 16px',
-              fontSize: '11px',
-              fontWeight: 600,
-              color: 'var(--accent)',
-              letterSpacing: '0.08em',
+              background: 'var(--surface-overlay)',
+              backdropFilter: 'blur(8px)',
+              padding: '12px 16px',
+              fontSize: '10px',
+              fontWeight: 700,
+              color: 'var(--text-tertiary)',
+              letterSpacing: '0.12em',
               textTransform: 'uppercase',
-              borderBottom: '1px solid var(--surface-3)',
-              zIndex: 10
+              borderBottom: '1px solid var(--border-faint)',
+              zIndex: 10,
+              fontFamily: 'var(--font-ui)',
             }}>
               {group.region}
             </div>
-            {group.provinces.map((prov, i) => (
+            {group.provinces.map((prov) => (
               <button
                 key={prov.name}
                 onClick={() => handleSelect(prov.name)}
                 style={{
                   width: '100%',
-                  height: '48px',
+                  height: '56px',
                   display: 'flex',
                   alignItems: 'center',
                   padding: '0 16px',
-                  background: selected === prov.name ? 'var(--accent)' : 'none',
+                  background: 'none',
                   border: 'none',
-                  borderBottom: i < group.provinces.length - 1 ? '1px solid var(--surface-3)' : 'none',
-                  color: selected === prov.name ? 'var(--surface-0)' : 'var(--text-primary)',
-                  fontSize: '15px',
-                  fontWeight: selected === prov.name ? 600 : 400,
+                  borderBottom: '1px solid var(--border-faint)',
+                  color: 'var(--text-primary)',
+                  fontSize: '16px',
+                  fontFamily: 'var(--font-ui)',
+                  fontWeight: 400,
                   textAlign: 'left',
                   cursor: 'pointer',
-                  transition: 'background 150ms'
+                  transition: 'background 150ms',
+                  WebkitTapHighlightColor: 'transparent',
                 }}
+                onMouseEnter={(e) => e.currentTarget.style.background = 'var(--surface-1)'}
+                onMouseLeave={(e) => e.currentTarget.style.background = 'none'}
               >
                 {prov.name}
               </button>
@@ -245,9 +297,22 @@ export const ProvinsiPicker: React.FC = () => {
         ))}
 
         {filteredGroups.length === 0 && (
-          <div style={{ textAlign: 'center', padding: '40px 16px' }}>
-            <div style={{ fontSize: '14px', color: 'var(--text-secondary)' }}>Provinsi tidak ditemukan.</div>
-            <div style={{ fontSize: '12px', color: 'var(--text-tertiary)', marginTop: '4px' }}>Pastikan ejaan sudah benar.</div>
+          <div style={{ textAlign: 'center', padding: '60px 24px' }}>
+            <div style={{ 
+              fontSize: '16px', 
+              color: 'var(--text-secondary)', 
+              fontFamily: 'var(--font-display)',
+              marginBottom: '4px'
+            }}>
+              Provinsi tidak ditemukan
+            </div>
+            <div style={{ 
+              fontSize: '13px', 
+              color: 'var(--text-tertiary)', 
+              fontFamily: 'var(--font-ui)' 
+            }}>
+              Coba gunakan kata kunci lain.
+            </div>
           </div>
         )}
       </div>

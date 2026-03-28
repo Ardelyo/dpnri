@@ -45,22 +45,14 @@ const PROVINCE_GRID: { name: string; row: number; col: number }[] = [
 
 function getVoteColor(setuju: number, tolak: number, abstain: number): string {
   const total = setuju + tolak + abstain;
-  if (total === 0) return '#8A9BA8';
+  if (total === 0) return 'var(--surface-3)';
   const setujuPct = setuju / total;
   const tolakPct = tolak / total;
-  if (Math.abs(setujuPct - tolakPct) < 0.05) return '#8A9BA8';
+  if (Math.abs(setujuPct - tolakPct) < 0.05) return 'var(--border-subtle)';
   if (setujuPct > tolakPct) {
-    const intensity = Math.min(1, (setujuPct - 0.5) * 3 + 0.3);
-    const r = Math.round(39 + (255 - 39) * (1 - intensity));
-    const g = Math.round(174 + (255 - 174) * (1 - intensity));
-    const b = Math.round(96 + (255 - 96) * (1 - intensity));
-    return `rgb(${r},${g},${b})`;
+    return 'var(--setuju)';
   }
-  const intensity = Math.min(1, (tolakPct - 0.5) * 3 + 0.3);
-  const r = Math.round(192 + (255 - 192) * (1 - intensity));
-  const g = Math.round(57 + (255 - 57) * (1 - intensity));
-  const b = Math.round(43 + (255 - 43) * (1 - intensity));
-  return `rgb(${r},${g},${b})`;
+  return 'var(--tolak)';
 }
 
 interface Props {
@@ -94,9 +86,9 @@ export const IndonesiaMap: React.FC<Props> = ({ fullscreen = false, onClose }) =
           bottom: '180px',
           right: '8px',
           width: '82px',
-          background: 'rgba(10,7,0,0.92)',
-          border: '1px solid rgba(201,162,39,0.25)',
-          borderRadius: '8px',
+          background: 'var(--surface-overlay)',
+          border: '1px solid var(--border-subtle)',
+          borderRadius: 'var(--radius-md)',
           padding: '5px 5px 4px',
           cursor: 'pointer',
           zIndex: 9,
@@ -104,6 +96,7 @@ export const IndonesiaMap: React.FC<Props> = ({ fullscreen = false, onClose }) =
           flexDirection: 'column',
           alignItems: 'center',
           gap: '3px',
+          boxShadow: 'var(--shadow-lg)',
         }}
       >
         <div style={{
@@ -133,11 +126,12 @@ export const IndonesiaMap: React.FC<Props> = ({ fullscreen = false, onClose }) =
         </div>
         <div style={{
           fontSize: '6px',
-          color: '#C9A227',
+          color: 'var(--accent)',
           fontWeight: 700,
-          letterSpacing: '0.8px',
+          letterSpacing: '0.08em',
           textTransform: 'uppercase',
           textAlign: 'center',
+          fontFamily: 'var(--font-ui)',
         }}>
           PETA SUARA
         </div>
@@ -149,8 +143,8 @@ export const IndonesiaMap: React.FC<Props> = ({ fullscreen = false, onClose }) =
     <div style={{
       position: 'fixed',
       inset: 0,
-      background: '#0A0700',
-      zIndex: 40,
+      background: 'var(--surface-0)',
+      zIndex: 100,
       display: 'flex',
       flexDirection: 'column',
       overflow: 'hidden',
@@ -158,7 +152,7 @@ export const IndonesiaMap: React.FC<Props> = ({ fullscreen = false, onClose }) =
       {/* Header */}
       <div style={{
         padding: '12px 16px',
-        borderBottom: '1px solid rgba(255,255,255,0.05)',
+        borderBottom: '1px solid var(--border-faint)',
         flexShrink: 0,
       }}>
         <button
@@ -166,29 +160,32 @@ export const IndonesiaMap: React.FC<Props> = ({ fullscreen = false, onClose }) =
           style={{
             background: 'none',
             border: 'none',
-            color: '#8A7A60',
+            color: 'var(--text-tertiary)',
             fontSize: '13px',
             cursor: 'pointer',
             padding: '4px 0',
             marginBottom: '4px',
+            fontFamily: 'var(--font-ui)',
+            fontWeight: 500,
           }}
         >
           ← Kembali
         </button>
         <div style={{
-          fontSize: '7px',
-          letterSpacing: '2px',
-          color: '#C9A227',
-          fontWeight: 700,
+          fontSize: '8px',
+          letterSpacing: '0.1em',
+          color: 'var(--accent)',
+          fontWeight: 600,
           textTransform: 'uppercase',
+          fontFamily: 'var(--font-ui)',
         }}>
           PETA SUARA NASIONAL
         </div>
         <h1 style={{
-          fontFamily: 'Georgia, serif',
-          fontSize: '16px',
-          color: '#F0E6D0',
-          fontWeight: 700,
+          fontFamily: 'var(--font-display)',
+          fontSize: '18px',
+          color: 'var(--text-primary)',
+          fontWeight: 400,
           margin: '4px 0 0',
         }}>
           Distribusi Suara per Provinsi
@@ -219,10 +216,10 @@ export const IndonesiaMap: React.FC<Props> = ({ fullscreen = false, onClose }) =
                   gridRow: pg.row + 1,
                   gridColumn: pg.col + 1,
                   background: color,
-                  borderRadius: '4px',
+                  borderRadius: 'var(--radius-sm)',
                   aspectRatio: '1',
                   cursor: 'pointer',
-                  border: isSelected ? '2px solid #C9A227' : '1px solid rgba(255,255,255,0.1)',
+                  border: isSelected ? '2px solid var(--accent)' : '1px solid var(--border-faint)',
                   opacity: data && data.total > 0 ? 1 : 0.4,
                   display: 'flex',
                   alignItems: 'center',
@@ -248,19 +245,21 @@ export const IndonesiaMap: React.FC<Props> = ({ fullscreen = false, onClose }) =
           justifyContent: 'center',
           gap: '16px',
           marginTop: '16px',
-          fontSize: '9px',
-          color: '#8A7A60',
+          fontSize: '10px',
+          color: 'var(--text-tertiary)',
+          fontFamily: 'var(--font-ui)',
+          fontWeight: 500,
         }}>
-          <div style={{ display: 'flex', alignItems: 'center', gap: '4px' }}>
-            <div style={{ width: '10px', height: '10px', background: '#27AE60', borderRadius: '2px' }} />
+          <div style={{ display: 'flex', alignItems: 'center', gap: '6px' }}>
+            <div style={{ width: '8px', height: '8px', background: 'var(--setuju)', borderRadius: '2px' }} />
             Setuju
           </div>
-          <div style={{ display: 'flex', alignItems: 'center', gap: '4px' }}>
-            <div style={{ width: '10px', height: '10px', background: '#8A9BA8', borderRadius: '2px' }} />
+          <div style={{ display: 'flex', alignItems: 'center', gap: '6px' }}>
+            <div style={{ width: '8px', height: '8px', background: 'var(--border-subtle)', borderRadius: '2px' }} />
             Berimbang
           </div>
-          <div style={{ display: 'flex', alignItems: 'center', gap: '4px' }}>
-            <div style={{ width: '10px', height: '10px', background: '#C0392B', borderRadius: '2px' }} />
+          <div style={{ display: 'flex', alignItems: 'center', gap: '6px' }}>
+            <div style={{ width: '8px', height: '8px', background: 'var(--tolak)', borderRadius: '2px' }} />
             Tolak
           </div>
         </div>
@@ -271,55 +270,59 @@ export const IndonesiaMap: React.FC<Props> = ({ fullscreen = false, onClose }) =
             className="animate-fade-in"
             style={{
               marginTop: '16px',
-              background: 'rgba(255,255,255,0.04)',
-              border: '1px solid rgba(201,162,39,0.2)',
-              borderRadius: '10px',
+              background: 'var(--surface-1)',
+              border: '1px solid var(--border-subtle)',
+              borderRadius: 'var(--radius-md)',
               padding: '12px 16px',
               maxWidth: '300px',
               margin: '16px auto 0',
               width: '100%',
+              boxShadow: 'var(--shadow-lg)',
             }}
           >
             <div style={{
-              fontFamily: 'Georgia, serif',
-              fontSize: '14px',
-              color: '#F0E6D0',
-              fontWeight: 700,
+              fontFamily: 'var(--font-display)',
+              fontSize: '16px',
+              color: 'var(--text-primary)',
+              fontWeight: 400,
               marginBottom: '8px',
             }}>
               {selected}
             </div>
             <div style={{ display: 'flex', gap: '8px' }}>
               {[
-                { label: 'Setuju', val: selectedData.setuju, color: '#27AE60' },
-                { label: 'Abstain', val: selectedData.abstain, color: '#8A9BA8' },
-                { label: 'Tolak', val: selectedData.tolak, color: '#C0392B' },
+                { label: 'Setuju', val: selectedData.setuju, color: 'var(--setuju)' },
+                { label: 'Abstain', val: selectedData.abstain, color: 'var(--text-tertiary)' },
+                { label: 'Tolak', val: selectedData.tolak, color: 'var(--tolak)' },
               ].map(s => (
                 <div key={s.label} style={{
                   flex: 1,
                   textAlign: 'center',
                   padding: '6px',
-                  background: 'rgba(0,0,0,0.2)',
-                  borderRadius: '6px',
+                  background: 'var(--surface-2)',
+                  borderRadius: 'var(--radius-sm)',
                 }}>
                   <div style={{
-                    fontSize: '16px',
-                    fontWeight: 700,
+                    fontSize: '18px',
+                    fontWeight: 500,
                     color: s.color,
+                    fontFamily: 'var(--font-ui)',
                   }}>
                     {selectedData.total > 0 ? (s.val / selectedData.total * 100).toFixed(0) : 0}%
                   </div>
-                  <div style={{ fontSize: '8px', color: '#8A7A60' }}>
+                  <div style={{ fontSize: '9px', color: 'var(--text-tertiary)', fontFamily: 'var(--font-ui)' }}>
                     {s.label} ({s.val})
                   </div>
                 </div>
               ))}
             </div>
             <div style={{
-              fontSize: '9px',
-              color: '#8A7A60',
-              marginTop: '6px',
+              fontSize: '10px',
+              color: 'var(--text-tertiary)',
+              marginTop: '8px',
               textAlign: 'center',
+              fontFamily: 'var(--font-ui)',
+              fontStyle: 'italic',
             }}>
               {selectedData.total} pendapat dari provinsi ini
             </div>
@@ -344,15 +347,16 @@ export const IndonesiaMap: React.FC<Props> = ({ fullscreen = false, onClose }) =
           }}
           style={{
             width: '100%',
-            padding: '13px',
-            background: 'linear-gradient(135deg, #C9A227 0%, #8B6010 100%)',
+            padding: '12px',
+            background: 'var(--accent)',
             border: 'none',
-            borderRadius: '10px',
-            color: '#1a1200',
-            fontWeight: 800,
-            fontSize: '13px',
-            fontFamily: 'Georgia, serif',
+            borderRadius: 'var(--radius-md)',
+            color: 'var(--surface-0)',
+            fontWeight: 600,
+            fontSize: '14px',
+            fontFamily: 'var(--font-ui)',
             cursor: 'pointer',
+            letterSpacing: '0.02em',
           }}
         >
           📤 Bagikan Peta
