@@ -26,17 +26,24 @@ export const HemicycleGrid: React.FC<HemicycleGridProps> = ({
   onNodeClick,
   userProvince,
 }) => {
-  const [viewportWidth, setViewportWidth] = useState(typeof window !== 'undefined' ? window.innerWidth : 360);
+  const containerRef = React.useRef<HTMLDivElement>(null);
+  const [containerWidth, setContainerWidth] = useState(360);
 
   useEffect(() => {
-    const handleResize = () => setViewportWidth(window.innerWidth);
-    window.addEventListener('resize', handleResize);
-    return () => window.removeEventListener('resize', handleResize);
+    const updateWidth = () => {
+      if (containerRef.current) {
+        setContainerWidth(containerRef.current.clientWidth);
+      }
+    };
+    
+    updateWidth();
+    window.addEventListener('resize', updateWidth);
+    return () => window.removeEventListener('resize', updateWidth);
   }, []);
 
   const { nodes, scale, areaHeight } = useMemo(() => {
     const padding = 16;
-    const availableWidth = Math.min(viewportWidth, 500) - (padding * 2);
+    const availableWidth = Math.min(containerWidth, 500) - (padding * 2);
     
     // We want the widest arc to fit in availableWidth
     // Max radius in config is 240. So baseWidth ~ 480.
@@ -44,7 +51,7 @@ export const HemicycleGrid: React.FC<HemicycleGridProps> = ({
     let scale = availableWidth / baseWidth;
     if (scale > 1) scale = 1;
 
-    const centerX = viewportWidth / 2;
+    const centerX = containerWidth / 2;
     // We'll place the "focus point" of the arcs slightly below the top of the component
     // and grow the arcs downwards or upwards. 
     // To make it look like a parliament facing the podium (which is at the top),
@@ -82,31 +89,34 @@ export const HemicycleGrid: React.FC<HemicycleGridProps> = ({
     const maxScrollY = Math.max(...nodePositions.map(n => n.y), 100) + 60;
 
     return { nodes: nodePositions, scale, areaHeight: maxScrollY };
-  }, [viewportWidth]);
+  }, [containerWidth]);
 
   return (
-    <div style={{ 
-      position: 'relative', 
-      width: '100%', 
-      height: `${areaHeight}px`,
-      overflow: 'hidden',
-      userSelect: 'none'
-    }}>
+    <div 
+      ref={containerRef}
+      style={{ 
+        position: 'relative', 
+        width: '100%', 
+        height: `${areaHeight}px`,
+        overflow: 'hidden',
+        userSelect: 'none'
+      }}
+    >
       {/* Subtle Arc Guides */}
       <svg
         style={{
           position: 'absolute',
-          top: 40, left: 0, 
+          top: 0, left: 0, 
           width: '100%', height: '100%',
           pointerEvents: 'none',
-          opacity: 0.15,
+          opacity: 0.1,
         }}
       >
         {ARC_CONFIG.map((arc, i) => {
           const r = arc.radius * scale;
-          const startX = viewportWidth / 2 + r * Math.cos(30 * Math.PI / 180);
+          const startX = containerWidth / 2 + r * Math.cos(30 * Math.PI / 180);
           const startY = 20 + r * Math.sin(30 * Math.PI / 180);
-          const endX = viewportWidth / 2 + r * Math.cos(150 * Math.PI / 180);
+          const endX = containerWidth / 2 + r * Math.cos(150 * Math.PI / 180);
           const endY = 20 + r * Math.sin(150 * Math.PI / 180);
           
           return (
