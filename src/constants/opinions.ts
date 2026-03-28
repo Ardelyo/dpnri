@@ -1,0 +1,89 @@
+export interface SampleOpinion {
+  id: string;
+  text: string;
+  provinsi: string;
+  vote: "setuju" | "abstain" | "tolak";
+  createdAt: string;
+}
+
+export const SAMPLE_OPINIONS: SampleOpinion[] = [
+  { id: "op001", text: "UKT saya naik 300% tanpa pemberitahuan. Orang tua saya harus jual sawah. Ini bukan reformasi pendidikan, ini pemerasan.", provinsi: "Jawa Timur", vote: "tolak", createdAt: "2026-03-14T08:12:00Z" },
+  { id: "op002", text: "Sebagai guru honorer 12 tahun, gaji saya masih Rp 800 ribu per bulan. Bagaimana bisa fokus mengajar kalau makan saja susah?", provinsi: "Nusa Tenggara Timur", vote: "tolak", createdAt: "2026-03-14T08:25:00Z" },
+  { id: "op003", text: "Pendidikan gratis itu hak, bukan kemewahan. Di kampung saya di Papua, anak-anak jalan kaki 3 jam ke sekolah.", provinsi: "Papua", vote: "setuju", createdAt: "2026-03-14T08:31:00Z" },
+  { id: "op004", text: "Kalau pendidikan gratis tapi kualitasnya turun, lebih baik yang sekarang. Yang penting perbaiki dulu kurikulumnya.", provinsi: "DKI Jakarta", vote: "abstain", createdAt: "2026-03-14T09:02:00Z" },
+  { id: "op005", text: "Saya mahasiswa S2 yang kerja paruh waktu untuk bayar kuliah. Kalau UKT dihapus, saya bisa fokus riset.", provinsi: "Jawa Barat", vote: "setuju", createdAt: "2026-03-14T09:15:00Z" },
+  { id: "op006", text: "RUU ini terlalu idealis. Siapa yang mau bayar? Pajak naik lagi? Rakyat kecil yang kena.", provinsi: "Sumatera Utara", vote: "tolak", createdAt: "2026-03-14T09:33:00Z" },
+  { id: "op007", text: "Di Kalimantan pedalaman, sekolah terdekat 40 km. Gratis pun percuma kalau aksesnya tidak ada.", provinsi: "Kalimantan Tengah", vote: "abstain", createdAt: "2026-03-14T09:45:00Z" },
+  { id: "op008", text: "Anak saya putus sekolah karena biaya. Sekarang kerja di sawit umur 15 tahun. Ini salah siapa?", provinsi: "Riau", vote: "setuju", createdAt: "2026-03-14T10:01:00Z" },
+  { id: "op009", text: "Saya dosen. Pendidikan gratis tanpa peningkatan anggaran riset = universitas jadi pabrik ijazah.", provinsi: "DI Yogyakarta", vote: "tolak", createdAt: "2026-03-14T10:18:00Z" },
+  { id: "op010", text: "Teman saya di NTT harus jalan 2 jam ke sekolah. Ini bukan wacana, ini kenyataan sehari-hari.", provinsi: "Nusa Tenggara Timur", vote: "setuju", createdAt: "2026-03-14T10:30:00Z" },
+  { id: "op011", text: "Pendidikan gratis sudah berhasil di banyak negara. Indonesia mampu, tinggal mau atau tidak.", provinsi: "Sulawesi Selatan", vote: "setuju", createdAt: "2026-03-14T10:45:00Z" },
+  { id: "op012", text: "Jangan cuma gratis, tapi juga berkualitas. Guru-guru harus disejahterakan dulu.", provinsi: "Jawa Tengah", vote: "abstain", createdAt: "2026-03-14T11:00:00Z" },
+  { id: "op013", text: "Saya alumni kampus negeri. Beasiswa ada banyak sebenarnya, tapi infonya tidak merata.", provinsi: "Banten", vote: "tolak", createdAt: "2026-03-14T11:12:00Z" },
+  { id: "op014", text: "Rakyat sudah bayar pajak. Pendidikan gratis itu hak kita, bukan hadiah dari pemerintah.", provinsi: "Aceh", vote: "setuju", createdAt: "2026-03-14T11:25:00Z" },
+  { id: "op015", text: "Di desa saya di Maluku, satu SD untuk 5 desa. Bangunannya bocor, gurunya cuma 2 orang.", provinsi: "Maluku", vote: "setuju", createdAt: "2026-03-14T11:40:00Z" },
+  { id: "op016", text: "Gratis bukan solusi. Yang perlu diperbaiki itu korupsi di kementerian pendidikan.", provinsi: "Lampung", vote: "tolak", createdAt: "2026-03-14T11:55:00Z" },
+  { id: "op017", text: "Anak nelayan di Sulawesi tidak punya pilihan selain ikut melaut. Pendidikan gratis bisa mengubah itu.", provinsi: "Sulawesi Tengah", vote: "setuju", createdAt: "2026-03-14T12:10:00Z" },
+  { id: "op018", text: "Saya setuju dengan syarat: transparan anggarannya, ada pengawasan, dan tidak jadi alat politik.", provinsi: "Bali", vote: "setuju", createdAt: "2026-03-14T12:25:00Z" },
+  { id: "op019", text: "Sudah 2026, masih bahas pendidikan gratis? Negara lain sudah bahas AI dan robotik.", provinsi: "DKI Jakarta", vote: "tolak", createdAt: "2026-03-14T12:40:00Z" },
+  { id: "op020", text: "Sebagai ibu tunggal dengan 3 anak, UKT adalah mimpi buruk setiap semester. Tolong dengarkan kami.", provinsi: "Sumatera Barat", vote: "setuju", createdAt: "2026-03-14T12:55:00Z" },
+  { id: "op021", text: "Kalau negara bisa bangun IKN triliunan, masa pendidikan gratis tidak sanggup?", provinsi: "Kalimantan Timur", vote: "setuju", createdAt: "2026-03-14T13:10:00Z" },
+  { id: "op022", text: "Saya dari keluarga mampu, tapi tetap dukung pendidikan gratis. Ini soal keadilan, bukan kemampuan bayar.", provinsi: "Jawa Barat", vote: "setuju", createdAt: "2026-03-14T13:25:00Z" },
+  { id: "op023", text: "Pendidikan gratis tanpa perbaikan infrastruktur = omong kosong. Bangun dulu sekolahnya.", provinsi: "Papua Barat", vote: "abstain", createdAt: "2026-03-14T13:40:00Z" },
+  { id: "op024", text: "Gaji guru honorer Rp 500 ribu. Mau gratis atau bayar, kalau gurunya tidak sejahtera, hasilnya sama.", provinsi: "Bengkulu", vote: "tolak", createdAt: "2026-03-14T13:55:00Z" },
+  { id: "op025", text: "Kami di pelosok Gorontalo butuh guru, bukan gedung megah. Prioritaskan SDM.", provinsi: "Gorontalo", vote: "setuju", createdAt: "2026-03-14T14:10:00Z" },
+];
+
+export const ACTIVE_SESSION = {
+  id: "sid-014",
+  nomor: "014",
+  judul: "RUU Pendidikan Gratis Nasional",
+  pertanyaan: "Haruskah pendidikan dari SD hingga perguruan tinggi di Indonesia sepenuhnya gratis dan dibiayai negara?",
+  status: "aktif" as const,
+  openedAt: "2026-03-14T07:00:00Z",
+  totalPendapat: SAMPLE_OPINIONS.length,
+  votes: {
+    setuju: SAMPLE_OPINIONS.filter(o => o.vote === "setuju").length,
+    abstain: SAMPLE_OPINIONS.filter(o => o.vote === "abstain").length,
+    tolak: SAMPLE_OPINIONS.filter(o => o.vote === "tolak").length,
+  },
+};
+
+export const PAST_SESSIONS = [
+  {
+    id: "sid-013",
+    nomor: "013",
+    judul: "Revisi UU ITE — Pasal Karet",
+    status: "selesai" as const,
+    openedAt: "2026-03-07T07:00:00Z",
+    closedAt: "2026-03-10T23:59:00Z",
+    totalPendapat: 14832,
+    votes: { setuju: 2104, abstain: 891, tolak: 11837 },
+    putusanDPN: "tolak" as const,
+    putusanDPR: "Disahkan dengan revisi minor",
+  },
+  {
+    id: "sid-012",
+    nomor: "012",
+    judul: "Kenaikan Harga BBM Subsidi",
+    status: "selesai" as const,
+    openedAt: "2026-02-28T07:00:00Z",
+    closedAt: "2026-03-03T23:59:00Z",
+    totalPendapat: 28491,
+    votes: { setuju: 3201, abstain: 1560, tolak: 23730 },
+    putusanDPN: "tolak" as const,
+    putusanDPR: "Disetujui DPR",
+  },
+  {
+    id: "sid-011",
+    nomor: "011",
+    judul: "Transparansi Anggaran Kementerian",
+    status: "selesai" as const,
+    openedAt: "2026-02-21T07:00:00Z",
+    closedAt: "2026-02-24T23:59:00Z",
+    totalPendapat: 9120,
+    votes: { setuju: 7841, abstain: 620, tolak: 659 },
+    putusanDPN: "setuju" as const,
+    putusanDPR: "Belum dibahas DPR",
+  },
+];
