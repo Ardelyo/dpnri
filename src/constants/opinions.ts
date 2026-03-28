@@ -1,10 +1,4 @@
-export interface SampleOpinion {
-  id: string;
-  text: string;
-  provinsi: string;
-  vote: "setuju" | "abstain" | "tolak";
-  createdAt: string;
-}
+import { SampleOpinion } from '../types';
 
 export const SAMPLE_OPINIONS: SampleOpinion[] = [
   { id: "op001", text: "UKT saya naik 300% tanpa pemberitahuan. Orang tua saya harus jual sawah. Ini bukan reformasi pendidikan, ini pemerasan.", provinsi: "Jawa Timur", vote: "tolak", createdAt: "2026-03-14T08:12:00Z" },

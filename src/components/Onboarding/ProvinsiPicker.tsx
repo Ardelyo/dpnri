@@ -1,10 +1,11 @@
 import React, { useState, useRef, useEffect } from 'react';
 import { useDPNStore } from '../../store/dpnStore';
 import { PROVINCES_BY_REGION, PROVINCES } from '../../constants/provinces';
+import type { DPNState } from '../../types';
 
 export const ProvinsiPicker: React.FC = () => {
-  const setUserProvinsi = useDPNStore(s => s.setUserProvinsi);
-  const setShowOnboarding = useDPNStore(s => s.setShowOnboarding);
+  const setUserProvinsi = useDPNStore((s: DPNState) => s.setUserProvinsi);
+  const setShowOnboarding = useDPNStore((s: DPNState) => s.setShowOnboarding);
 
   const [search, setSearch] = useState('');
   const [selected, setSelected] = useState<string | null>(null);
@@ -93,7 +94,7 @@ export const ProvinsiPicker: React.FC = () => {
           ref={searchRef}
           type="text"
           value={search}
-          onChange={e => setSearch(e.target.value)}
+          onChange={(e: React.ChangeEvent<HTMLInputElement>) => setSearch(e.target.value)}
           placeholder="Ketik nama provinsimu..."
           className="input-base"
           style={{ fontSize: '15px' }}

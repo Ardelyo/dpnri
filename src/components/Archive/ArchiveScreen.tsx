@@ -2,329 +2,100 @@ import React, { useState, useMemo } from 'react';
 import { useDPNStore } from '../../store/dpnStore';
 import { PROVINCES } from '../../constants/provinces';
 import { DPNvsDPRCard } from '../ShareCard/DPNvsDPRCard';
-import type { Session, Opinion } from '../../store/dpnStore';
+import type { Session, Opinion, DPNState } from '../../types';
 
-// --- Vote display helpers ---
-const VOTE_BORDER: Record<string, string> = {
-  setuju:  'var(--setuju)',
-  abstain: 'var(--abstain)',
-  tolak:   'var(--tolak)',
-};
-const VOTE_TEXT: Record<string, string> = {
-  setuju:  'var(--setuju-text)',
-  abstain: 'var(--abstain-text)',
-  tolak:   'var(--tolak-text)',
-};
-const VOTE_LABEL_FULL: Record<string, string> = {
-  setuju: 'Setuju',
-  abstain: 'Abstain',
-  tolak: 'Tolak',
-};
+// --- Sub-components for Archive ---
 
-// --- Session status helpers ---
-function getSessionStatusDisplay(s: Session) {
-  if (s.status === 'aktif') {
-    return { label: 'AKTIF', color: 'var(--accent-primary)', bg: 'var(--accent-primary-muted)', borderColor: 'rgba(201,185,122,0.2)' };
-  }
-  const putusan = s.putusanDPN;
-  if (putusan === 'setuju') {
-    return { label: 'SETUJU', color: 'var(--setuju-text)', bg: 'var(--setuju-muted)', borderColor: 'rgba(90,138,106,0.2)' };
-  }
-  if (putusan === 'tolak') {
-    return { label: 'DITOLAK', color: 'var(--tolak-text)', bg: 'var(--tolak-muted)', borderColor: 'rgba(138,64,64,0.2)' };
-  }
-  return { label: 'SELESAI', color: 'var(--text-secondary)', bg: 'var(--surface-3)', borderColor: 'var(--border-subtle)' };
+interface OpinionCardProps {
+  op: Opinion;
 }
 
-function formatDate(iso: string) {
-  return new Date(iso).toLocaleDateString('id-ID', {
-    day: 'numeric',
-    month: 'short',
-    year: 'numeric',
-  });
-}
-
-function formatNum(n: number) {
-  return n.toLocaleString('id-ID');
-}
-
-// --- Stacked vote bar ---
-interface VoteBarProps {
-  setuju: number;
-  abstain: number;
-  tolak: number;
-  compact?: boolean;
-}
-const VoteBar: React.FC<VoteBarProps> = ({ setuju, abstain, tolak, compact }) => {
-  const total = setuju + abstain + tolak || 1;
-  const sPct = (setuju / total * 100).toFixed(0);
-  const aPct = (abstain / total * 100).toFixed(0);
-  const tPct = (tolak / total * 100).toFixed(0);
-  return (
-    <div>
-      <div className="vote-bar-track" style={{ marginBottom: compact ? '4px' : '6px' }}>
-        <div className="vote-bar-segment" style={{ width: `${setuju / total * 100}%`, background: 'var(--setuju)' }} />
-        <div className="vote-bar-segment" style={{ width: `${abstain / total * 100}%`, background: 'var(--abstain)' }} />
-        <div className="vote-bar-segment" style={{ width: `${tolak / total * 100}%`, background: 'var(--tolak)' }} />
-      </div>
-      <div style={{
-        display: 'flex',
-        gap: '8px',
-        fontSize: '11px',
-        color: 'var(--text-secondary)',
-        fontFamily: 'var(--font-ui)',
-      }}>
-        <span style={{ color: 'var(--setuju-text)' }}>{sPct}% setuju</span>
-        <span style={{ color: 'var(--text-tertiary)' }}>·</span>
-        <span style={{ color: 'var(--abstain-text)' }}>{aPct}% abstain</span>
-        <span style={{ color: 'var(--text-tertiary)' }}>·</span>
-        <span style={{ color: 'var(--tolak-text)' }}>{tPct}% tolak</span>
-      </div>
-    </div>
-  );
-};
-
-// --- Opinion card ---
-const OpinionCard: React.FC<{ op: Opinion }> = ({ op }) => (
+const OpinionCard: React.FC<OpinionCardProps> = ({ op }: OpinionCardProps) => (
   <div style={{
+    padding: '12px 14px',
     background: 'var(--surface-1)',
-    border: '1px solid var(--border-subtle)',
-    borderLeft: `2px solid ${VOTE_BORDER[op.vote] || 'var(--border-mid)'}`,
+    border: '1px solid var(--surface-3)',
     borderRadius: 'var(--radius-md)',
-    padding: '14px 16px',
+    display: 'flex',
+    flexDirection: 'column',
+    gap: '6px',
+    cursor: 'default',
   }}>
-    {/* Header row */}
-    <div style={{
-      display: 'flex',
-      justifyContent: 'space-between',
-      alignItems: 'center',
-      marginBottom: op.text ? '10px' : '0',
-    }}>
-      <span style={{
-        fontSize: '13px',
-        fontWeight: 600,
-        color: 'var(--text-primary)',
-        fontFamily: 'var(--font-ui)',
-      }}>
-        {op.provinsi}
-      </span>
-      <span style={{
-        fontSize: '11px',
-        fontWeight: 700,
-        color: VOTE_TEXT[op.vote] || 'var(--text-tertiary)',
-        fontFamily: 'var(--font-ui)',
-        textTransform: 'uppercase',
-        letterSpacing: '0.06em',
-      }}>
-        {VOTE_LABEL_FULL[op.vote]}
+    <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'flex-start' }}>
+      <div style={{ display: 'flex', gap: '6px', alignItems: 'center' }}>
+         <div style={{
+           width: '10px', height: '10px', borderRadius: '50%',
+           background: op.vote === 'setuju' ? '#27AE60' : op.vote === 'tolak' ? '#C0392B' : '#F1C40F'
+         }} />
+         <span style={{ fontSize: '12px', fontWeight: 600, color: 'var(--text-secondary)', fontFamily: 'var(--font-ui)' }}>
+           {op.provinsi.toUpperCase()}
+         </span>
+      </div>
+      <span style={{ fontSize: '10px', color: 'var(--text-tertiary)', fontFamily: 'var(--font-display)' }}>
+        #{op.id}
       </span>
     </div>
-
-    {/* Quote */}
-    {op.text ? (
-      <div
-        className="citizen-voice-sm"
-        style={{ marginBottom: '10px' }}
-      >
-        "{op.text}"
-      </div>
-    ) : (
-      <div style={{
-        fontSize: '12px',
-        fontStyle: 'italic',
-        color: 'var(--text-tertiary)',
-        fontFamily: 'var(--font-display)',
-        marginBottom: '10px',
-      }}>
-        Memilih tanpa kata.
-      </div>
-    )}
-
-    {/* Meta */}
-    <div style={{
-      fontSize: '10px',
-      color: 'var(--text-tertiary)',
-      fontFamily: 'var(--font-ui)',
-      fontVariantNumeric: 'tabular-nums',
-      letterSpacing: '0.02em',
-    }}>
-      {op.nomorDokumen} &nbsp;·&nbsp; {formatDate(op.createdAt)}
+    <div style={{ fontSize: '14px', color: 'var(--text-primary)', lineHeight: 1.4, fontFamily: 'var(--font-ui)' }}>
+      {op.text}
+    </div>
+    <div style={{ fontSize: '10px', color: 'var(--text-tertiary)', marginTop: '2px', fontStyle: 'italic' }}>
+      {new Date(op.createdAt).toLocaleString('id-ID')}
     </div>
   </div>
 );
 
-// --- Session row ---
 interface SessionRowProps {
   session: Session;
   onViewComparison?: () => void;
 }
-const SessionRow: React.FC<SessionRowProps> = ({ session, onViewComparison }) => {
-  const status = getSessionStatusDisplay(session);
-  const leftBorderColor = session.status === 'aktif'
-    ? 'var(--accent-primary)'
-    : session.putusanDPN === 'setuju'
-      ? 'var(--setuju)'
-      : session.putusanDPN === 'tolak'
-        ? 'var(--tolak)'
-        : 'var(--border-mid)';
 
-  return (
-    <div style={{
-      background: 'var(--surface-1)',
-      border: '1px solid var(--border-subtle)',
-      borderLeft: `3px solid ${leftBorderColor}`,
-      borderRadius: 'var(--radius-md)',
-      padding: '14px 16px',
-    }}>
-      {/* Top row: number badge + status + date */}
-      <div style={{
-        display: 'flex',
-        justifyContent: 'space-between',
-        alignItems: 'center',
-        marginBottom: '8px',
-      }}>
-        <div style={{ display: 'flex', alignItems: 'center', gap: '8px' }}>
-          <span style={{
-            fontFamily: 'var(--font-ui)',
-            fontSize: '11px',
-            fontWeight: 600,
-            color: 'var(--text-tertiary)',
-            background: 'var(--surface-3)',
-            borderRadius: 'var(--radius-sm)',
-            padding: '2px 6px',
-          }}>
-            #{session.nomor}
-          </span>
-          <span style={{
-            fontSize: '10px',
-            fontWeight: 700,
-            color: status.color,
-            background: status.bg,
-            border: `1px solid ${status.borderColor}`,
-            borderRadius: 'var(--radius-sm)',
-            padding: '2px 6px',
-            fontFamily: 'var(--font-ui)',
-            letterSpacing: '0.06em',
-            textTransform: 'uppercase',
-            display: 'flex',
-            alignItems: 'center',
-            gap: '4px',
-          }}>
-            {session.status === 'aktif' && (
-              <span
-                className="animate-pulse-live"
-                style={{
-                  width: '5px',
-                  height: '5px',
-                  borderRadius: '50%',
-                  background: 'currentColor',
-                  display: 'inline-block',
-                }}
-              />
-            )}
-            {status.label}
-          </span>
-        </div>
-        <span style={{
-          fontSize: '11px',
-          color: 'var(--text-tertiary)',
-          fontFamily: 'var(--font-ui)',
-        }}>
-          {formatDate(session.openedAt)}
-        </span>
+const SessionRow: React.FC<SessionRowProps> = ({ session, onViewComparison }: SessionRowProps) => (
+  <div style={{
+    padding: '14px 16px',
+    background: 'var(--surface-1)',
+    border: '1px solid var(--surface-3)',
+    borderRadius: 'var(--radius-md)',
+    display: 'flex',
+    justifyContent: 'space-between',
+    alignItems: 'center',
+  }}>
+    <div>
+      <div style={{ fontSize: '12px', fontWeight: 600, color: 'var(--accent-primary)', marginBottom: '2px' }}>
+        SIDANG #{session.nomor}
       </div>
-
-      {/* Title */}
-      <div style={{
-        fontFamily: 'var(--font-display)',
-        fontSize: '16px',
-        fontWeight: 400,
-        color: 'var(--text-primary)',
-        lineHeight: 1.3,
-        marginBottom: '12px',
-      }}>
+      <div style={{ fontSize: '14px', color: 'var(--text-primary)', fontWeight: 500 }}>
         {session.judul}
       </div>
-
-      {/* Vote bar */}
-      <VoteBar
-        setuju={session.votes.setuju}
-        abstain={session.votes.abstain}
-        tolak={session.votes.tolak}
-      />
-
-      {/* Total suara */}
-      <div style={{
-        fontSize: '11px',
-        color: 'var(--text-tertiary)',
-        fontFamily: 'var(--font-ui)',
-        marginTop: '6px',
-      }}>
-        {formatNum(session.totalPendapat)} suara tercatat
+      <div style={{ fontSize: '11px', color: 'var(--text-tertiary)', marginTop: '4px' }}>
+        {new Date(session.openedAt).toLocaleDateString('id-ID', { year: 'numeric', month: 'long', day: 'numeric' })}
       </div>
-
-      {/* DPR comparison callout */}
-      {session.putusanDPR && onViewComparison && (
-        <button
-          onClick={onViewComparison}
-          style={{
-            marginTop: '12px',
-            width: '100%',
-            background: 'var(--surface-2)',
-            border: '1px solid var(--border-mid)',
-            borderLeft: `2px solid var(--accent-primary)`,
-            borderRadius: 'var(--radius-sm)',
-            padding: '10px 12px',
-            cursor: 'pointer',
-            display: 'flex',
-            justifyContent: 'space-between',
-            alignItems: 'center',
-            textAlign: 'left',
-          }}
-        >
-          <div>
-            <div style={{
-              fontSize: '10px',
-              color: 'var(--text-tertiary)',
-              fontFamily: 'var(--font-ui)',
-              marginBottom: '2px',
-              textTransform: 'uppercase',
-              letterSpacing: '0.06em',
-              fontWeight: 600,
-            }}>
-              Keputusan DPR
-            </div>
-            <div style={{
-              fontSize: '13px',
-              color: 'var(--text-body)',
-              fontFamily: 'var(--font-ui)',
-              fontWeight: 500,
-            }}>
-              {session.putusanDPR}
-            </div>
-          </div>
-          <span style={{
-            fontSize: '11px',
-            color: 'var(--accent-primary)',
-            fontFamily: 'var(--font-ui)',
-            fontWeight: 600,
-            flexShrink: 0,
-            marginLeft: '8px',
-          }}>
-            Lihat perbandingan →
-          </span>
-        </button>
-      )}
     </div>
-  );
-};
+    {onViewComparison && (
+      <button
+        onClick={onViewComparison}
+        style={{
+          background: 'none',
+          border: '1px solid var(--accent-primary)',
+          color: 'var(--accent-primary)',
+          padding: '6px 12px',
+          borderRadius: 'var(--radius-sm)',
+          fontSize: '12px',
+          cursor: 'pointer',
+          fontFamily: 'var(--font-ui)',
+        }}
+      >
+        Lihat Putusan
+      </button>
+    )}
+  </div>
+);
 
 // --- Main Archive Screen ---
 export const ArchiveScreen: React.FC = () => {
-  const setScreen = useDPNStore(s => s.setScreen);
-  const opinions = useDPNStore(s => s.opinions);
-  const pastSessions = useDPNStore(s => s.pastSessions);
-  const activeSession = useDPNStore(s => s.activeSession);
+  const setScreen = useDPNStore((s: DPNState) => s.setScreen);
+  const opinions = useDPNStore((s: DPNState) => s.opinions);
+  const pastSessions = useDPNStore((s: DPNState) => s.pastSessions);
+  const activeSession = useDPNStore((s: DPNState) => s.activeSession);
 
   const [tab, setTab] = useState<'pendapat' | 'putusan'>('pendapat');
   const [filterVote, setFilterVote] = useState<string[]>([]);
@@ -346,7 +117,7 @@ export const ArchiveScreen: React.FC = () => {
   const allSessions = [activeSession, ...pastSessions];
 
   const toggleVoteFilter = (v: string) => {
-    setFilterVote(prev => prev.includes(v) ? prev.filter(x => x !== v) : [...prev, v]);
+    setFilterVote((prev: string[]) => prev.includes(v) ? prev.filter((x: string) => x !== v) : [...prev, v]);
   };
 
   return (
@@ -454,7 +225,7 @@ export const ArchiveScreen: React.FC = () => {
                 <input
                   type="text"
                   value={search}
-                  onChange={e => setSearch(e.target.value)}
+                  onChange={(e: React.ChangeEvent<HTMLInputElement>) => setSearch(e.target.value)}
                   placeholder="Cari pendapat..."
                   style={{
                     width: '100%',
@@ -471,8 +242,8 @@ export const ArchiveScreen: React.FC = () => {
                     boxSizing: 'border-box',
                     transition: 'border-color 200ms ease-out',
                   }}
-                  onFocus={e => { e.currentTarget.style.borderColor = 'var(--accent-primary)'; }}
-                  onBlur={e => { e.currentTarget.style.borderColor = 'var(--surface-3)'; }}
+                  onFocus={(e: React.FocusEvent<HTMLInputElement>) => { e.currentTarget.style.borderColor = 'var(--accent-primary)'; }}
+                  onBlur={(e: React.FocusEvent<HTMLInputElement>) => { e.currentTarget.style.borderColor = 'var(--surface-3)'; }}
                 />
               </div>
 
@@ -526,7 +297,7 @@ export const ArchiveScreen: React.FC = () => {
                 {/* Province — same chip style with ▾ */}
                 <select
                   value={filterProv}
-                  onChange={e => setFilterProv(e.target.value)}
+                  onChange={(e: React.ChangeEvent<HTMLSelectElement>) => setFilterProv(e.target.value)}
                   style={{
                     flexShrink: 0,
                     height: '32px',
@@ -594,7 +365,7 @@ export const ArchiveScreen: React.FC = () => {
             {/* Opinion list */}
             <div style={{ flex: 1, overflowY: 'auto', padding: '12px 16px', display: 'flex', flexDirection: 'column', gap: '8px' }}>
               {filteredOpinions.length > 0 ? (
-                filteredOpinions.map(op => (
+                filteredOpinions.map((op: Opinion) => (
                   <OpinionCard key={op.id} op={op} />
                 ))
               ) : (
@@ -614,7 +385,7 @@ export const ArchiveScreen: React.FC = () => {
         ) : (
           /* Putusan tab */
           <div style={{ flex: 1, overflowY: 'auto', padding: '12px 16px', display: 'flex', flexDirection: 'column', gap: '8px' }}>
-            {allSessions.map(s => (
+            {allSessions.map((s: Session) => (
               <SessionRow
                 key={s.id}
                 session={s}

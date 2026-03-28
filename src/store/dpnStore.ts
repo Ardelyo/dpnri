@@ -1,98 +1,31 @@
 import { create } from 'zustand';
-import { SAMPLE_OPINIONS, ACTIVE_SESSION, PAST_SESSIONS, type SampleOpinion } from '../constants/opinions';
+import { SAMPLE_OPINIONS, ACTIVE_SESSION, PAST_SESSIONS } from '../constants/opinions';
+import { 
+  Opinion, 
+  Session, 
+  Screen,
+  DPNState
+} from '../types';
+import { 
+  convertSampleToOpinion, 
+  createNewOpinion 
+} from '../utils/opinion-logic';
 
-export type VoteType = "setuju" | "abstain" | "tolak";
-export type Screen = "room" | "speak" | "archive" | "map";
-
-export interface Opinion {
-  id: string;
-  sessionId: string;
-  provinsi: string;
-  vote: VoteType;
-  text: string;
-  createdAt: string;
-  nomorDokumen: string;
-}
-
-export interface Session {
-  id: string;
-  nomor: string;
-  judul: string;
-  pertanyaan: string;
-  status: "aktif" | "selesai" | "arsip";
-  openedAt: string;
-  closedAt?: string;
-  totalPendapat: number;
-  votes: { setuju: number; abstain: number; tolak: number };
-  putusanDPN?: "setuju" | "tolak";
-  putusanDPR?: string;
-}
-
-export interface CharData {
-  id: number;
-  baseX: number;
-  baseY: number;
-  x: number;
-  y: number;
-  provinsi: string;
-  color: string;
-  opinion: Opinion;
-  vote: VoteType;
-}
-
-interface DPNState {
-  screen: Screen;
-  setScreen: (s: Screen) => void;
-
-  userProvinsi: string | null;
-  setUserProvinsi: (p: string) => void;
-
-  showOnboarding: boolean;
-  setShowOnboarding: (v: boolean) => void;
-
-  activeSession: Session;
-  pastSessions: Session[];
-
-  opinions: Opinion[];
-  addOpinion: (op: Omit<Opinion, 'id' | 'nomorDokumen' | 'createdAt' | 'sessionId'>) => void;
-
-  selectedCharId: number | null;
-  setSelectedCharId: (id: number | null) => void;
-
-  playerPos: { x: number; y: number } | null;
-  setPlayerPos: (p: { x: number; y: number } | null) => void;
-
-  showShareCard: boolean;
-  setShowShareCard: (v: boolean) => void;
-  lastSubmittedOpinion: Opinion | null;
-
-  hasVoted: boolean;
-}
-
-const convertSampleToOpinion = (s: SampleOpinion, idx: number): Opinion => ({
-  id: s.id,
-  sessionId: "sid-014",
-  provinsi: s.provinsi,
-  vote: s.vote,
-  text: s.text,
-  createdAt: s.createdAt,
-  nomorDokumen: `DPN/SID/014/2026/${String(idx + 1).padStart(8, '0')}`,
-});
 
 const savedProvinsi = typeof window !== 'undefined' ? localStorage.getItem('dpn_provinsi') : null;
 
-export const useDPNStore = create<DPNState>((set, get) => ({
+export const useDPNStore = create<DPNState>((set: any, get: any) => ({
   screen: "room",
-  setScreen: (s) => set({ screen: s }),
+  setScreen: (s: Screen) => set({ screen: s }),
 
   userProvinsi: savedProvinsi,
-  setUserProvinsi: (p) => {
+  setUserProvinsi: (p: string) => {
     localStorage.setItem('dpn_provinsi', p);
     set({ userProvinsi: p, showOnboarding: false });
   },
 
   showOnboarding: false,
-  setShowOnboarding: (v) => set({ showOnboarding: v }),
+  setShowOnboarding: (v: boolean) => set({ showOnboarding: v }),
 
   activeSession: {
     ...ACTIVE_SESSION,
@@ -101,18 +34,11 @@ export const useDPNStore = create<DPNState>((set, get) => ({
 
   pastSessions: PAST_SESSIONS as Session[],
 
-  opinions: SAMPLE_OPINIONS.map(convertSampleToOpinion),
+  opinions: SAMPLE_OPINIONS.map((op, idx) => convertSampleToOpinion(op, idx)),
 
-  addOpinion: (op) => {
+  addOpinion: (op: Omit<Opinion, 'id' | 'nomorDokumen' | 'createdAt' | 'sessionId'>) => {
     const state = get();
-    const idx = state.opinions.length;
-    const newOp: Opinion = {
-      ...op,
-      id: `op${String(idx + 1).padStart(3, '0')}`,
-      sessionId: state.activeSession.id,
-      createdAt: new Date().toISOString(),
-      nomorDokumen: `DPN/SID/${state.activeSession.nomor}/2026/${String(idx + 1).padStart(8, '0')}`,
-    };
+    const newOp = createNewOpinion(state, op);
 
     const newVotes = { ...state.activeSession.votes };
     newVotes[op.vote] += 1;
@@ -130,13 +56,13 @@ export const useDPNStore = create<DPNState>((set, get) => ({
   },
 
   selectedCharId: null,
-  setSelectedCharId: (id) => set({ selectedCharId: id }),
+  setSelectedCharId: (id: number | null) => set({ selectedCharId: id }),
 
   playerPos: null,
-  setPlayerPos: (p) => set({ playerPos: p }),
+  setPlayerPos: (p: { x: number; y: number } | null) => set({ playerPos: p }),
 
   showShareCard: false,
-  setShowShareCard: (v) => set({ showShareCard: v }),
+  setShowShareCard: (v: boolean) => set({ showShareCard: v }),
   lastSubmittedOpinion: null,
 
   hasVoted: false,

@@ -1,27 +1,19 @@
 import { useDPNStore } from './store/dpnStore';
+import type { DPNState } from './types';
 import { RoomScreen } from './components/Room/RoomScreen';
 import { SpeakScreen } from './components/Speak/SpeakScreen';
 import { ArchiveScreen } from './components/Archive/ArchiveScreen';
 import { ShareCard } from './components/ShareCard/ShareCard';
 import { ProvinsiPicker } from './components/Onboarding/ProvinsiPicker';
+import { AppLayout } from './layouts/AppLayout';
 
 function App() {
-  const screen = useDPNStore(s => s.screen);
-  const showShareCard = useDPNStore(s => s.showShareCard);
-  const showOnboarding = useDPNStore(s => s.showOnboarding);
+  const screen = useDPNStore((s: DPNState) => s.screen);
+  const showShareCard = useDPNStore((s: DPNState) => s.showShareCard);
+  const showOnboarding = useDPNStore((s: DPNState) => s.showOnboarding);
 
   return (
-    <div
-      style={{
-        width: '100%',
-        height: '100%',
-        maxWidth: '430px',
-        margin: '0 auto',
-        position: 'relative',
-        overflow: 'hidden',
-        background: 'var(--surface-0)',
-      }}
-    >
+    <AppLayout>
       {/* Room is always rendered underneath */}
       <div style={{
         position: 'absolute',
@@ -40,34 +32,7 @@ function App() {
 
       {/* Share card */}
       {showShareCard && <ShareCard />}
-
-      {/* Landscape warning (CSS handles display) */}
-      <div
-        className="landscape-warning"
-        style={{
-          position: 'fixed',
-          inset: 0,
-          background: 'var(--surface-0)',
-          zIndex: 9999,
-          flexDirection: 'column',
-          alignItems: 'center',
-          justifyContent: 'center',
-          gap: '16px',
-        }}
-      >
-        <div style={{ fontSize: '36px' }}>📱</div>
-        <div style={{
-          fontFamily: 'var(--font-display)',
-          fontSize: '16px',
-          color: 'var(--text-primary)',
-          textAlign: 'center',
-          padding: '0 40px',
-          lineHeight: 1.5,
-        }}>
-          Putar HP ke mode portrait untuk pengalaman terbaik.
-        </div>
-      </div>
-    </div>
+    </AppLayout>
   );
 }
 

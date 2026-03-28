@@ -1,5 +1,5 @@
 import React from 'react';
-import type { VoteType } from '../../store/dpnStore';
+import type { VoteType } from '../../types';
 
 interface Props {
   value: VoteType | null;
@@ -12,7 +12,7 @@ const VOTES: { type: VoteType; icon: string; label: string; color: string }[] = 
   { type: 'tolak', icon: '✕', label: 'Tolak', color: '#C0392B' },
 ];
 
-export const VotePicker: React.FC<Props> = ({ value, onChange }) => {
+export const VotePicker: React.FC<Props> = ({ value, onChange }: Props) => {
   return (
     <div style={{ marginBottom: '16px' }}>
       <div style={{

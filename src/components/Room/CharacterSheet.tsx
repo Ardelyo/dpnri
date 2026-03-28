@@ -1,5 +1,5 @@
 import React from 'react';
-import type { Opinion } from '../../store/dpnStore';
+import type { Opinion } from '../../types';
 
 // TASK 3.2 — Bottom sheet refinement
 // - Backdrop: rgba 0.6, blur 4px (not 8px)

@@ -1,6 +1,6 @@
 import React, { useState, useRef, useEffect } from 'react';
 import { useDPNStore } from '../../store/dpnStore';
-import type { VoteType } from '../../store/dpnStore';
+import type { VoteType, DPNState } from '../../types';
 import { OpinionCarousel } from './OpinionCarousel';
 
 // TASK 1.2 — Vote options: 3 columns, height 64px, no icons, subtitle readable
@@ -63,11 +63,11 @@ const AnimatedCheck: React.FC = () => (
 );
 
 export const SpeakScreen: React.FC = () => {
-  const setScreen = useDPNStore(s => s.setScreen);
-  const activeSession = useDPNStore(s => s.activeSession);
-  const userProvinsi = useDPNStore(s => s.userProvinsi);
-  const addOpinion = useDPNStore(s => s.addOpinion);
-  const setShowShareCard = useDPNStore(s => s.setShowShareCard);
+  const setScreen = useDPNStore((s: DPNState) => s.setScreen);
+  const activeSession = useDPNStore((s: DPNState) => s.activeSession);
+  const userProvinsi = useDPNStore((s: DPNState) => s.userProvinsi);
+  const addOpinion = useDPNStore((s: DPNState) => s.addOpinion);
+  const setShowShareCard = useDPNStore((s: DPNState) => s.setShowShareCard);
 
   const [myVote, setMyVote] = useState<VoteType | null>(null);
   const [text, setText] = useState('');
@@ -332,7 +332,7 @@ export const SpeakScreen: React.FC = () => {
           <textarea
             ref={textareaRef}
             value={text}
-            onChange={e => setText(e.target.value.slice(0, 300))}
+            onChange={(e: React.ChangeEvent<HTMLTextAreaElement>) => setText(e.target.value.slice(0, 300))}
             placeholder={`Contoh: "Teman saya di NTT harus jalan 2 jam ke sekolah. Ini bukan wacana."\n\nMinimal 20 huruf agar pendapatmu tampil di kartu suara.`}
             disabled={status !== 'idle'}
             rows={4}
@@ -354,8 +354,8 @@ export const SpeakScreen: React.FC = () => {
               transition: 'border-color 200ms ease-out',
               boxSizing: 'border-box',
             }}
-            onFocus={e => { e.currentTarget.style.borderColor = 'var(--accent-primary)'; }}
-            onBlur={e => { e.currentTarget.style.borderColor = 'var(--border-mid)'; }}
+            onFocus={(e: React.FocusEvent<HTMLTextAreaElement>) => { e.currentTarget.style.borderColor = 'var(--accent-primary)'; }}
+            onBlur={(e: React.FocusEvent<HTMLTextAreaElement>) => { e.currentTarget.style.borderColor = 'var(--border-mid)'; }}
           />
           {/* Counter row — TASK 1.3 */}
           <div style={{

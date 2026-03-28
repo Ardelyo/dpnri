@@ -1,5 +1,5 @@
 import React from 'react';
-import type { Session } from '../../store/dpnStore';
+import type { Session } from '../../types';
 
 // TASK 2.3 — Comparison modal rebalance:
 // - Compact header
@@ -25,7 +25,7 @@ function formatDate(iso: string) {
   });
 }
 
-export const DPNvsDPRCard: React.FC<Props> = ({ session, onClose }) => {
+export const DPNvsDPRCard: React.FC<Props> = ({ session, onClose }: Props) => {
   if (!session.putusanDPR) return null;
 
   const votes = session.votes;
