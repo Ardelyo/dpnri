@@ -60,7 +60,7 @@ export const CharacterSheet: React.FC<Props> = ({ provinsi, opinion, onClose, on
           maxHeight: '55vh',
           display: 'flex',
           flexDirection: 'column',
-          maxWidth: '500px',
+          maxWidth: '480px',
           margin: '0 auto',
         }}
       >

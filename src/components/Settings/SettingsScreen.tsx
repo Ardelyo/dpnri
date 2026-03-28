@@ -2,6 +2,7 @@ import React, { useState } from 'react';
 import { useUserStore } from '../../store/useUserStore';
 import { useDPNStore } from '../../store/dpnStore';
 import type { VoteRecord } from '../../store/useUserStore';
+import { LegalSheet, LegalDocType } from './LegalDocs';
 
 // ─── Vote Receipt Bottom Sheet ────────────────────────────────────────────
 interface VoteReceiptSheetProps {
@@ -70,17 +71,18 @@ export const VoteReceiptSheet: React.FC<VoteReceiptSheetProps> = ({ voteRecord, 
 
       {/* Sheet */}
       <div style={{
-        position: 'fixed', bottom: 0, left: 0, right: 0, zIndex: 401,
+        position: 'fixed', bottom: 0, 
+        left: '50%', transform: visible ? 'translate(-50%, 0)' : 'translate(-50%, 100%)',
+        width: '100%',
+        zIndex: 401,
         background: 'var(--surface-1)',
         borderTop: '1px solid var(--surface-3)',
         borderRadius: '16px 16px 0 0',
-        maxWidth: '500px',
-        margin: '0 auto',
+        maxWidth: '480px',
         maxHeight: '55vh',
         overflow: 'hidden',
         display: 'flex',
         flexDirection: 'column',
-        transform: visible ? 'translateY(0)' : 'translateY(100%)',
         transition: 'transform 260ms cubic-bezier(0.32, 0.72, 0, 1)',
       }}>
         {/* Handle */}
@@ -221,6 +223,7 @@ export const SettingsScreen: React.FC = () => {
   const setScreen = useDPNStore(s => s.setScreen);
   const [showLogoutDialog, setShowLogoutDialog] = useState(false);
   const [selectedVote, setSelectedVote] = useState<(VoteRecord & { sidangNomor: string }) | null>(null);
+  const [selectedLegal, setSelectedLegal] = useState<LegalDocType | null>(null);
 
   const voteEntries = Object.entries(user.votes) as [string, VoteRecord][];
 
@@ -254,11 +257,17 @@ export const SettingsScreen: React.FC = () => {
   return (
     <>
       <div style={{
-        position: 'fixed', inset: 0,
+        position: 'fixed',
+        top: 0,
+        bottom: 0,
+        left: '50%',
+        transform: 'translateX(-50%)',
+        width: '100%',
         background: 'var(--surface-0)',
         zIndex: 100,
-        display: 'flex', flexDirection: 'column',
-        maxWidth: '500px', margin: '0 auto',
+        display: 'flex',
+        flexDirection: 'column',
+        maxWidth: '480px',
       }}>
         {/* Header */}
         <div style={{
@@ -397,6 +406,44 @@ export const SettingsScreen: React.FC = () => {
             </button>
           </div>
 
+          {/* Legal Information Section */}
+          <div style={{
+            fontSize: '11px', fontWeight: 600, color: 'var(--accent)',
+            fontFamily: 'var(--font-ui)', letterSpacing: '0.08em',
+            textTransform: 'uppercase', marginBottom: '12px',
+          }}>INFORMASI HUKUM</div>
+
+          <div style={{
+            background: 'var(--surface-1)',
+            border: '1px solid var(--surface-3)',
+            borderRadius: 'var(--radius-md)',
+            overflow: 'hidden', marginBottom: '32px',
+          }}>
+            {[
+              { id: 'disclaimer', label: 'Disclaimer Resmi' },
+              { id: 'privacy', label: 'Kebijakan Privasi' },
+              { id: 'terms', label: 'Syarat & Ketentuan' },
+            ].map((item, i, arr) => (
+              <button 
+                key={item.id}
+                onClick={() => setSelectedLegal(item.id as LegalDocType)}
+                style={{
+                  width: '100%', padding: '14px 16px',
+                  background: 'none', border: 'none',
+                  borderBottom: i < arr.length - 1 ? '1px solid var(--surface-2)' : 'none',
+                  display: 'flex', justifyContent: 'space-between', alignItems: 'center',
+                  cursor: 'pointer', textAlign: 'left',
+                }}
+              >
+                <span style={{
+                  fontSize: '14px', color: 'var(--text-primary)',
+                  fontFamily: 'var(--font-ui)',
+                }}>{item.label}</span>
+                <span style={{ fontSize: '14px', color: 'var(--text-tertiary)' }}>→</span>
+              </button>
+            ))}
+          </div>
+
           {/* Footer */}
           <div style={{
             textAlign: 'center', marginBottom: '80px',
@@ -476,6 +523,14 @@ export const SettingsScreen: React.FC = () => {
         <VoteReceiptSheet
           voteRecord={selectedVote}
           onClose={() => setSelectedVote(null)}
+        />
+      )}
+
+      {/* Legal documents bottom sheet */}
+      {selectedLegal && (
+        <LegalSheet
+          type={selectedLegal}
+          onClose={() => setSelectedLegal(null)}
         />
       )}
     </>

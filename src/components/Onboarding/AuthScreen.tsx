@@ -88,13 +88,16 @@ export const AuthScreen: React.FC = () => {
   return (
     <div style={{
       position: 'fixed',
-      inset: 0,
+      top: 0,
+      bottom: 0,
+      left: '50%',
+      transform: 'translateX(-50%)',
+      width: '100%',
       background: 'var(--surface-0)',
       zIndex: 200,
       display: 'flex',
       flexDirection: 'column',
-      maxWidth: '500px',
-      margin: '0 auto',
+      maxWidth: '480px',
       padding: '0 24px',
       overflowY: 'auto',
     }}>

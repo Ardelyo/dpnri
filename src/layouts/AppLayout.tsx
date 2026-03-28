@@ -7,16 +7,14 @@ interface AppLayoutProps {
 export const AppLayout: React.FC<AppLayoutProps> = ({ children }: AppLayoutProps) => {
   return (
     <div
+      className="app-container"
       style={{
         width: '100%',
-        height: '100dvh',
-        maxWidth: '430px',
+        maxWidth: '480px',
         margin: '0 auto',
         position: 'relative',
-        overflow: 'hidden',
         background: 'var(--surface-0)',
         color: 'var(--text-primary)',
-        boxShadow: '0 0 100px rgba(0,0,0,0.5)', // Framing shadow
       }}
     >
       {/* Premium Texture Overlay */}

@@ -44,7 +44,12 @@ export const ProvinsiPicker: React.FC = () => {
     return (
       <div style={{
         position: 'fixed',
-        inset: 0,
+        top: 0,
+        bottom: 0,
+        left: '50%',
+        transform: 'translateX(-50%)',
+        width: '100%',
+        maxWidth: '480px',
         background: 'var(--surface-0)',
         display: 'flex',
         flexDirection: 'column',
@@ -150,13 +155,16 @@ export const ProvinsiPicker: React.FC = () => {
   return (
     <div style={{
       position: 'fixed',
-      inset: 0,
+      top: 0,
+      bottom: 0,
+      left: '50%',
+      transform: 'translateX(-50%)',
+      width: '100%',
       background: 'var(--surface-0)',
       display: 'flex',
       flexDirection: 'column',
       zIndex: 400,
-      maxWidth: '500px',
-      margin: '0 auto',
+      maxWidth: '480px',
     }}>
       {/* Header */}
       <div style={{ padding: '0 16px 12px', flexShrink: 0 }}>

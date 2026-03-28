@@ -80,14 +80,17 @@ export const SpeakScreen: React.FC = () => {
   return (
     <div style={{
       position: 'fixed',
-      inset: 0,
+      top: 0,
+      bottom: 0,
+      left: '50%',
+      transform: 'translateX(-50%)',
+      width: '100%',
       background: 'var(--surface-0)',
       zIndex: 100,
       display: 'flex',
       flexDirection: 'column',
       height: '100dvh',
-      maxWidth: '500px',
-      margin: '0 auto',
+      maxWidth: '480px',
     }}>
       {/* Header */}
       <div style={{ padding: '0 16px 8px' }}>

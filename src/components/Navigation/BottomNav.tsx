@@ -68,13 +68,15 @@ export const BottomNav: React.FC = () => {
   return (
     <div style={{
       position: 'fixed',
-      bottom: 0, left: 0, right: 0,
+      bottom: 0,
+      left: '50%',
+      transform: 'translateX(-50%)',
+      width: '100%',
+      maxWidth: '480px',
       zIndex: 300,
       background: 'var(--surface-1)',
       borderTop: '1px solid var(--surface-3)',
       display: 'flex',
-      maxWidth: '500px',
-      margin: '0 auto',
       height: `calc(56px + env(safe-area-inset-bottom, 0px))`,
       paddingBottom: 'env(safe-area-inset-bottom, 0px)',
     }}>

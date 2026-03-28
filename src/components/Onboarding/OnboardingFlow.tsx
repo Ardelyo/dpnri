@@ -76,13 +76,16 @@ export const OnboardingFlow: React.FC = () => {
     <div
       style={{
         position: 'fixed',
-        inset: 0,
+        top: 0,
+        bottom: 0,
+        left: '50%',
+        transform: 'translateX(-50%)',
+        width: '100%',
         background: 'var(--surface-0)',
         zIndex: 200,
         display: 'flex',
         flexDirection: 'column',
-        maxWidth: '500px',
-        margin: '0 auto',
+        maxWidth: '480px',
         userSelect: 'none',
       }}
       onTouchStart={handleTouchStart}

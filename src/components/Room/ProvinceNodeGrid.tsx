@@ -23,7 +23,7 @@ const ROW_GROUPS = [
   ["Maluku", "Maluku Utara", "Papua", "Papua Barat", "Papua Selatan", "Papua Tengah", "Papua Pegunungan", "Papua Barat Daya"]
 ];
 
-function useNodeSize(maxNodesPerRow: number = 9) {
+function useNodeSize(containerRef: React.RefObject<HTMLDivElement | null>, maxNodesPerRow: number = 9) {
   const [nodeSize, setNodeSize] = useState({
     width: 32,
     height: 26,
@@ -32,42 +32,34 @@ function useNodeSize(maxNodesPerRow: number = 9) {
   });
 
   useEffect(() => {
-    function calculate() {
-      // Limit container to essentially max mobile width 390
-      const viewportWidth = window.innerWidth;
-      const PADDING_TOTAL = 32; 
-      let usableWidth = viewportWidth - PADDING_TOTAL;
-      if (viewportWidth > 390) {
-        usableWidth = 390 - PADDING_TOTAL;
-      }
-      
-      const totalGap = (maxNodesPerRow - 1) * 6;
-      const safetyMargin = 4;
-      
-      const maxWidth = Math.floor((usableWidth - totalGap - safetyMargin) / maxNodesPerRow);
-      const nodeWidth = Math.max(24, Math.min(38, maxWidth));
-      const nodeHeight = Math.round(nodeWidth * 0.8);
-      const fontSize = Math.max(8, Math.round(nodeWidth * 0.28));
-      
-      setNodeSize({
-        width: nodeWidth,
-        height: nodeHeight,
-        fontSize,
-        gap: 6,
-      });
-    }
-    
-    calculate();
-    
-    let resizeTimer: NodeJS.Timeout;
-    const handleResize = () => {
-      clearTimeout(resizeTimer);
-      resizeTimer = setTimeout(calculate, 50);
-    };
+    if (!containerRef.current) return;
 
-    window.addEventListener('resize', handleResize);
-    return () => window.removeEventListener('resize', handleResize);
-  }, [maxNodesPerRow]);
+    const observer = new ResizeObserver((entries) => {
+      for (let entry of entries) {
+        // contentRect.width is the element's width minus padding
+        const usableWidth = entry.contentRect.width;
+        
+        const totalGap = (maxNodesPerRow - 1) * 6;
+        const safetyMargin = 4;
+        
+        const maxWidth = Math.floor((usableWidth - totalGap - safetyMargin) / maxNodesPerRow);
+        // Increase maximum width for desktop containers
+        const nodeWidth = Math.max(24, Math.min(42, maxWidth));
+        const nodeHeight = Math.round(nodeWidth * 0.8);
+        const fontSize = Math.max(8, Math.round(nodeWidth * 0.28));
+        
+        setNodeSize({
+          width: nodeWidth,
+          height: nodeHeight,
+          fontSize,
+          gap: 6,
+        });
+      }
+    });
+
+    observer.observe(containerRef.current);
+    return () => observer.disconnect();
+  }, [maxNodesPerRow, containerRef]);
 
   return nodeSize;
 }
@@ -79,10 +71,11 @@ export const ProvinceNodeGrid: React.FC<ProvinceNodeGridProps> = ({
   onNodeClick,
   userProvince,
 }) => {
-  const nodeSize = useNodeSize(9);
+  const containerRef = React.useRef<HTMLDivElement>(null);
+  const nodeSize = useNodeSize(containerRef, 9);
 
   return (
-    <div style={{ width: '100%', overflow: 'visible', padding: '0 16px' }}>
+    <div ref={containerRef} style={{ width: '100%', overflow: 'visible', padding: '0 16px', boxSizing: 'border-box' }}>
       {ROW_GROUPS.map((rowProvinces, rowIndex) => (
         <div 
           key={rowIndex}
