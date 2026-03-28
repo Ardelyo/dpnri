@@ -60,6 +60,8 @@ export const CharacterSheet: React.FC<Props> = ({ provinsi, opinion, onClose, on
           maxHeight: '55vh',
           display: 'flex',
           flexDirection: 'column',
+          maxWidth: '500px',
+          margin: '0 auto',
         }}
       >
         {/* Handle bar — TASK 3.2: 40px wide, 4px tall, surface-3 */}
@@ -142,6 +144,8 @@ export const CharacterSheet: React.FC<Props> = ({ provinsi, opinion, onClose, on
                   fontWeight: 600,
                   color: voteStyle.color,
                   fontFamily: 'var(--font-ui)',
+                  textTransform: 'uppercase',
+                  letterSpacing: '0.04em'
                 }}>
                   {voteStyle.label}
                 </span>
@@ -168,6 +172,10 @@ export const CharacterSheet: React.FC<Props> = ({ provinsi, opinion, onClose, on
                   paddingLeft: '14px',
                   fontSize: '15px',
                   marginBottom: '12px',
+                  fontFamily: 'var(--font-display)',
+                  fontStyle: 'italic',
+                  color: 'var(--text-primary)',
+                  lineHeight: 1.5
                 }}
               >
                 "{opinion.text}"
@@ -209,28 +217,25 @@ export const CharacterSheet: React.FC<Props> = ({ provinsi, opinion, onClose, on
             onClick={onReply}
             style={{
               width: '100%',
-              height: '44px',
-              background: 'var(--accent-primary)',
-              border: '1px solid var(--accent-primary-dim)',
+              height: '48px',
+              background: 'var(--accent)',
               borderRadius: 'var(--radius-md)',
               color: 'var(--surface-0)',
               fontFamily: 'var(--font-ui)',
               fontWeight: 700,
-              fontSize: '14px',
+              fontSize: '15px',
               cursor: 'pointer',
               display: 'flex',
               alignItems: 'center',
               justifyContent: 'center',
-              gap: '6px',
+              gap: '8px',
               WebkitTapHighlightColor: 'transparent',
               outline: 'none',
+              border: 'none'
             }}
-            onPointerDown={e => { (e.currentTarget as HTMLElement).style.opacity = '0.85'; }}
-            onPointerUp={e => { (e.currentTarget as HTMLElement).style.opacity = '1'; }}
-            onPointerCancel={e => { (e.currentTarget as HTMLElement).style.opacity = '1'; }}
           >
             Sampaikan Pendapatmu
-            <span style={{ fontSize: '15px' }}>→</span>
+            <span style={{ fontSize: '18px' }}>→</span>
           </button>
         </div>
       </div>

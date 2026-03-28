@@ -1,7 +1,7 @@
 import React, { useState, useMemo } from 'react';
 import { useDPNStore } from '../../store/dpnStore';
-import { PROVINCES } from '../../constants/provinces';
 import { DPNvsDPRCard } from '../ShareCard/DPNvsDPRCard';
+import { EmptyState } from '../Common/EmptyState';
 import type { Session, Opinion, DPNState } from '../../types';
 
 // --- Sub-components for Archive ---
@@ -12,34 +12,51 @@ interface OpinionCardProps {
 
 const OpinionCard: React.FC<OpinionCardProps> = ({ op }: OpinionCardProps) => (
   <div style={{
-    padding: '12px 14px',
+    padding: '16px',
     background: 'var(--surface-1)',
     border: '1px solid var(--surface-3)',
     borderRadius: 'var(--radius-md)',
     display: 'flex',
     flexDirection: 'column',
-    gap: '6px',
-    cursor: 'default',
+    gap: '12px',
   }}>
-    <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'flex-start' }}>
+    <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
       <div style={{ display: 'flex', gap: '6px', alignItems: 'center' }}>
-         <div style={{
-           width: '10px', height: '10px', borderRadius: '50%',
-           background: op.vote === 'setuju' ? '#27AE60' : op.vote === 'tolak' ? '#C0392B' : '#F1C40F'
+         <span style={{
+           width: '6px', height: '6px', borderRadius: '50%',
+           background: `var(--${op.vote})`
          }} />
-         <span style={{ fontSize: '12px', fontWeight: 600, color: 'var(--text-secondary)', fontFamily: 'var(--font-ui)' }}>
-           {op.provinsi.toUpperCase()}
+         <span style={{ 
+           fontSize: '11px', 
+           fontWeight: 600, 
+           color: 'var(--text-secondary)', 
+           fontFamily: 'var(--font-ui)',
+           textTransform: 'uppercase',
+           letterSpacing: '0.04em'
+         }}>
+           {op.provinsi} · {op.vote}
          </span>
       </div>
-      <span style={{ fontSize: '10px', color: 'var(--text-tertiary)', fontFamily: 'var(--font-display)' }}>
-        #{op.id}
+      <span style={{ fontSize: '10px', color: 'var(--text-tertiary)', fontFamily: 'var(--font-ui)' }}>
+        {op.nomorDokumen}
       </span>
     </div>
-    <div style={{ fontSize: '14px', color: 'var(--text-primary)', lineHeight: 1.4, fontFamily: 'var(--font-ui)' }}>
-      {op.text}
-    </div>
-    <div style={{ fontSize: '10px', color: 'var(--text-tertiary)', marginTop: '2px', fontStyle: 'italic' }}>
-      {new Date(op.createdAt).toLocaleString('id-ID')}
+    <blockquote style={{ 
+      fontSize: '15px', 
+      color: 'var(--text-primary)', 
+      lineHeight: 1.5, 
+      fontFamily: 'var(--font-display)',
+      fontStyle: 'italic',
+      margin: 0
+    }}>
+      "{op.text}"
+    </blockquote>
+    <div style={{ 
+      fontSize: '11px', 
+      color: 'var(--text-tertiary)', 
+      fontFamily: 'var(--font-ui)'
+    }}>
+      — Warga {op.provinsi} · {new Date(op.createdAt).toLocaleDateString('id-ID')}
     </div>
   </div>
 );
@@ -51,22 +68,36 @@ interface SessionRowProps {
 
 const SessionRow: React.FC<SessionRowProps> = ({ session, onViewComparison }: SessionRowProps) => (
   <div style={{
-    padding: '14px 16px',
+    padding: '16px',
     background: 'var(--surface-1)',
     border: '1px solid var(--surface-3)',
     borderRadius: 'var(--radius-md)',
     display: 'flex',
     justifyContent: 'space-between',
     alignItems: 'center',
+    gap: '16px'
   }}>
-    <div>
-      <div style={{ fontSize: '12px', fontWeight: 600, color: 'var(--accent-primary)', marginBottom: '2px' }}>
-        SIDANG #{session.nomor}
+    <div style={{ flex: 1 }}>
+      <div style={{ 
+        fontSize: '11px', 
+        fontWeight: 600, 
+        color: 'var(--accent)', 
+        marginBottom: '4px',
+        fontFamily: 'var(--font-ui)',
+        letterSpacing: '0.08em'
+      }}>
+        SIDANG #{session.nomor.toString().padStart(3, '0')}
       </div>
-      <div style={{ fontSize: '14px', color: 'var(--text-primary)', fontWeight: 500 }}>
+      <h4 style={{ 
+        fontSize: '16px', 
+        color: 'var(--text-primary)', 
+        fontWeight: 400,
+        fontFamily: 'var(--font-display)',
+        margin: 0
+      }}>
         {session.judul}
-      </div>
-      <div style={{ fontSize: '11px', color: 'var(--text-tertiary)', marginTop: '4px' }}>
+      </h4>
+      <div style={{ fontSize: '11px', color: 'var(--text-secondary)', marginTop: '4px', fontFamily: 'var(--font-ui)' }}>
         {new Date(session.openedAt).toLocaleDateString('id-ID', { year: 'numeric', month: 'long', day: 'numeric' })}
       </div>
     </div>
@@ -75,13 +106,15 @@ const SessionRow: React.FC<SessionRowProps> = ({ session, onViewComparison }: Se
         onClick={onViewComparison}
         style={{
           background: 'none',
-          border: '1px solid var(--accent-primary)',
-          color: 'var(--accent-primary)',
-          padding: '6px 12px',
+          border: '1px solid var(--accent)',
+          color: 'var(--accent)',
+          padding: '8px 12px',
           borderRadius: 'var(--radius-sm)',
           fontSize: '12px',
+          fontWeight: 600,
           cursor: 'pointer',
           fontFamily: 'var(--font-ui)',
+          whiteSpace: 'nowrap'
         }}
       >
         Lihat Putusan
@@ -99,20 +132,18 @@ export const ArchiveScreen: React.FC = () => {
 
   const [tab, setTab] = useState<'pendapat' | 'putusan'>('pendapat');
   const [filterVote, setFilterVote] = useState<string[]>([]);
-  const [filterProv, setFilterProv] = useState<string>('');
   const [search, setSearch] = useState('');
   const [viewDPNvsDPR, setViewDPNvsDPR] = useState<Session | null>(null);
 
   const filteredOpinions = useMemo(() => {
     let list = [...opinions].reverse();
     if (filterVote.length > 0) list = list.filter(o => filterVote.includes(o.vote));
-    if (filterProv) list = list.filter(o => o.provinsi === filterProv);
     if (search.trim()) {
       const q = search.toLowerCase();
       list = list.filter(o => o.text?.toLowerCase().includes(q) || o.provinsi.toLowerCase().includes(q));
     }
     return list;
-  }, [opinions, filterVote, filterProv, search]);
+  }, [opinions, filterVote, search]);
 
   const allSessions = [activeSession, ...pastSessions];
 
@@ -132,12 +163,14 @@ export const ArchiveScreen: React.FC = () => {
           display: 'flex',
           flexDirection: 'column',
           overflow: 'hidden',
+          maxWidth: '500px',
+          margin: '0 auto',
         }}
       >
         {/* ── HEADER ── */}
         <div style={{
-          padding: '12px 16px 0',
-          borderBottom: '1px solid var(--border-faint)',
+          padding: '8px 16px 0',
+          borderBottom: '1px solid var(--surface-3)',
           flexShrink: 0,
         }}>
           <button
@@ -150,7 +183,6 @@ export const ArchiveScreen: React.FC = () => {
               fontFamily: 'var(--font-ui)',
               cursor: 'pointer',
               padding: '10px 0',
-              marginBottom: '4px',
               display: 'flex',
               alignItems: 'center',
               gap: '4px',
@@ -159,36 +191,45 @@ export const ArchiveScreen: React.FC = () => {
           >
             ← Kembali ke Sidang
           </button>
-          <div className="label-overline" style={{ marginBottom: '4px' }}>ARSIP NASIONAL</div>
+          <div style={{
+            fontSize: '11px',
+            fontWeight: 600,
+            color: 'var(--accent)',
+            fontFamily: 'var(--font-ui)',
+            letterSpacing: '0.08em',
+            textTransform: 'uppercase',
+            marginBottom: '4px'
+          }}>
+            ARSIP NASIONAL
+          </div>
           <h1 style={{
             fontFamily: 'var(--font-display)',
-            fontSize: '20px',
+            fontSize: '24px',
             fontWeight: 400,
             color: 'var(--text-primary)',
             lineHeight: 1.2,
-            marginBottom: '14px',
+            margin: '0 0 16px',
           }}>
             Risalah Sidang DPN RI
           </h1>
 
           {/* Tabs */}
-          <div style={{ display: 'flex', gap: '0' }}>
+          <div style={{ display: 'flex' }}>
             {(['pendapat', 'putusan'] as const).map(t => (
               <button
                 key={t}
                 onClick={() => setTab(t)}
                 style={{
                   flex: 1,
-                  padding: '10px 0',
+                  padding: '12px 0',
                   background: 'none',
                   border: 'none',
-                  borderBottom: `2px solid ${tab === t ? 'var(--accent-primary)' : 'transparent'}`,
-                  color: tab === t ? 'var(--accent-primary)' : 'var(--text-tertiary)',
+                  borderBottom: `2px solid ${tab === t ? 'var(--accent)' : 'transparent'}`,
+                  color: tab === t ? 'var(--text-primary)' : 'var(--text-tertiary)',
                   fontFamily: 'var(--font-ui)',
                   fontSize: '13px',
                   fontWeight: 600,
                   cursor: 'pointer',
-                  transition: 'color var(--dur-normal), border-color var(--dur-normal)',
                   letterSpacing: '0.02em',
                 }}
               >
@@ -201,31 +242,17 @@ export const ArchiveScreen: React.FC = () => {
         {/* ── CONTENT ── */}
         {tab === 'pendapat' ? (
           <div style={{ flex: 1, display: 'flex', flexDirection: 'column', minHeight: 0 }}>
-            {/* TASK 3.1 — Filter bar: compact search + unified chips */}
+            {/* Filter bar */}
             <div style={{
-              padding: '12px 16px',
-              borderBottom: '1px solid var(--border-faint)',
+              padding: '16px',
+              borderBottom: '1px solid var(--surface-3)',
               flexShrink: 0,
             }}>
-              {/* Search bar — height 40px */}
               <div style={{ position: 'relative', marginBottom: '8px' }}>
-                <svg
-                  width="14" height="14" viewBox="0 0 14 14" fill="none"
-                  style={{
-                    position: 'absolute', left: '10px', top: '50%',
-                    transform: 'translateY(-50%)',
-                    color: 'var(--text-tertiary)',
-                    pointerEvents: 'none',
-                  }}
-                  aria-hidden="true"
-                >
-                  <circle cx="6" cy="6" r="4.5" stroke="currentColor" strokeWidth="1.2" />
-                  <line x1="9.5" y1="9.5" x2="13" y2="13" stroke="currentColor" strokeWidth="1.2" strokeLinecap="round" />
-                </svg>
                 <input
                   type="text"
                   value={search}
-                  onChange={(e: React.ChangeEvent<HTMLInputElement>) => setSearch(e.target.value)}
+                  onChange={(e) => setSearch(e.target.value)}
                   placeholder="Cari pendapat..."
                   style={{
                     width: '100%',
@@ -239,152 +266,58 @@ export const ArchiveScreen: React.FC = () => {
                     fontStyle: 'italic',
                     padding: '0 12px 0 32px',
                     outline: 'none',
-                    boxSizing: 'border-box',
-                    transition: 'border-color 200ms ease-out',
                   }}
-                  onFocus={(e: React.FocusEvent<HTMLInputElement>) => { e.currentTarget.style.borderColor = 'var(--accent-primary)'; }}
-                  onBlur={(e: React.FocusEvent<HTMLInputElement>) => { e.currentTarget.style.borderColor = 'var(--surface-3)'; }}
                 />
               </div>
 
-              {/* TASK 3.1 — Unified chips row (all same style) */}
-              {/* At 360px: 5 chips × ~58px + 4×6px gap = 314px — fits in 328px usable */}
               <div style={{
                 display: 'flex',
                 gap: '6px',
-                marginBottom: '10px',
                 overflowX: 'auto',
-                // Hide scrollbar
                 scrollbarWidth: 'none',
+                paddingBottom: '4px'
               }}>
-                {/* "Semua" chip */}
                 {(['all', 'setuju', 'abstain', 'tolak'] as const).map(v => {
-                  const isAll = v === 'all';
-                  const isActive = isAll
-                    ? filterVote.length === 0
-                    : filterVote.includes(v);
-                  const label = isAll ? 'Semua' : v.charAt(0).toUpperCase() + v.slice(1);
+                  const isActive = v === 'all' ? filterVote.length === 0 : filterVote.includes(v);
                   return (
                     <button
                       key={v}
-                      onClick={() => {
-                        if (isAll) setFilterVote([]);
-                        else toggleVoteFilter(v);
-                      }}
+                      onClick={() => v === 'all' ? setFilterVote([]) : toggleVoteFilter(v)}
                       style={{
                         flexShrink: 0,
                         height: '32px',
                         padding: '0 14px',
                         borderRadius: 'var(--radius-sm)',
-                        border: isActive ? '1px solid var(--accent-primary)' : '1px solid transparent',
-                        background: isActive ? 'var(--accent-primary)' : 'var(--surface-2)',
+                        background: isActive ? 'var(--accent)' : 'var(--surface-2)',
                         color: isActive ? 'var(--surface-0)' : 'var(--text-secondary)',
                         fontFamily: 'var(--font-ui)',
                         fontSize: '12px',
-                        fontWeight: 500,
-                        cursor: 'pointer',
-                        transition: 'background 150ms ease-out, border-color 150ms ease-out, color 150ms ease-out',
-                        outline: 'none',
-                        WebkitTapHighlightColor: 'transparent',
-                        whiteSpace: 'nowrap',
+                        fontWeight: 600,
+                        border: 'none',
                       }}
                     >
-                      {label}
+                      {v === 'all' ? 'Semua' : v.charAt(0).toUpperCase() + v.slice(1)}
                     </button>
                   );
                 })}
-
-                {/* Province — same chip style with ▾ */}
-                <select
-                  value={filterProv}
-                  onChange={(e: React.ChangeEvent<HTMLSelectElement>) => setFilterProv(e.target.value)}
-                  style={{
-                    flexShrink: 0,
-                    height: '32px',
-                    padding: '0 8px',
-                    borderRadius: 'var(--radius-sm)',
-                    border: filterProv ? '1px solid var(--accent-primary)' : '1px solid transparent',
-                    background: filterProv ? 'var(--accent-primary)' : 'var(--surface-2)',
-                    color: filterProv ? 'var(--surface-0)' : 'var(--text-secondary)',
-                    fontFamily: 'var(--font-ui)',
-                    fontSize: '12px',
-                    fontWeight: 500,
-                    cursor: 'pointer',
-                    outline: 'none',
-                    whiteSpace: 'nowrap',
-                  }}
-                >
-                  <option value="">▾ Semua Provinsi</option>
-                  {PROVINCES.map(p => (
-                    <option key={p.name} value={p.name}>{p.name}</option>
-                  ))}
-                </select>
-              </div>
-
-              {/* TASK 3.1 — Counter row */}
-              <div style={{
-                display: 'flex',
-                justifyContent: 'space-between',
-                alignItems: 'center',
-              }}>
-                <span style={{
-                  fontSize: '12px',
-                  color: 'var(--text-tertiary)',
-                  fontFamily: 'var(--font-ui)',
-                }}>
-                  {filteredOpinions.length} pendapat tercatat
-                  {(filterVote.length > 0 || filterProv || search) && (
-                    <button
-                      onClick={() => { setFilterVote([]); setFilterProv(''); setSearch(''); }}
-                      style={{
-                        background: 'none',
-                        border: 'none',
-                        color: 'var(--accent-primary)',
-                        fontFamily: 'var(--font-ui)',
-                        fontSize: '12px',
-                        cursor: 'pointer',
-                        marginLeft: '8px',
-                        padding: 0,
-                      }}
-                    >
-                      Reset
-                    </button>
-                  )}
-                </span>
-                <span style={{
-                  fontSize: '12px',
-                  color: 'var(--text-tertiary)',
-                  fontFamily: 'var(--font-display)',
-                  fontStyle: 'italic',
-                }}>
-                  Tersimpan permanen.
-                </span>
               </div>
             </div>
 
-            {/* Opinion list */}
-            <div style={{ flex: 1, overflowY: 'auto', padding: '12px 16px', display: 'flex', flexDirection: 'column', gap: '8px' }}>
+            <div style={{ flex: 1, overflowY: 'auto', padding: '16px', display: 'flex', flexDirection: 'column', gap: '8px' }}>
               {filteredOpinions.length > 0 ? (
                 filteredOpinions.map((op: Opinion) => (
                   <OpinionCard key={op.id} op={op} />
                 ))
               ) : (
-                <div style={{
-                  padding: '32px 16px',
-                  textAlign: 'center',
-                  color: 'var(--text-tertiary)',
-                  fontFamily: 'var(--font-ui)',
-                  fontSize: '14px',
-                  fontStyle: 'italic',
-                }}>
-                  Belum ada pendapat dengan filter ini.
-                </div>
+                <EmptyState 
+                  title="Tidak ada pendapat dengan filter ini."
+                  subtitle="Coba ubah filter atau jadi yang pertama bersuara."
+                />
               )}
             </div>
           </div>
         ) : (
-          /* Putusan tab */
-          <div style={{ flex: 1, overflowY: 'auto', padding: '12px 16px', display: 'flex', flexDirection: 'column', gap: '8px' }}>
+          <div style={{ flex: 1, overflowY: 'auto', padding: '16px', display: 'flex', flexDirection: 'column', gap: '8px' }}>
             {allSessions.map((s: Session) => (
               <SessionRow
                 key={s.id}
@@ -396,7 +329,6 @@ export const ArchiveScreen: React.FC = () => {
         )}
       </div>
 
-      {/* DPN vs DPR modal */}
       {viewDPNvsDPR && (
         <DPNvsDPRCard
           session={viewDPNvsDPR}

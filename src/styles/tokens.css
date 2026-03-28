@@ -5,29 +5,24 @@
 :root {
   /* Backgrounds */
   --surface-0: #0c0c0a;   /* Background utama — warm near-black */
-  --surface-1: #18170e;   /* Card, panel utama — visibly lighter */
-  --surface-2: #201f16;   /* Input, elevated card, nested panel */
+  --surface-1: #16150f;   /* Card, panel utama */
+  --surface-2: #201e16;   /* Input, elevated card */
   --surface-3: #2a2820;   /* Hover state, selected row, borders */
   --surface-4: #343028;   /* Tooltip, badge background */
 
-  /* Borders */
-  --border-faint:  #22211a;  /* Border sangat halus */
-  --border-subtle: #2e2c24;  /* Border normal, card */
-  --border-mid:    #3e3c32;  /* Border lebih visible */
-  --border-loud:   #504e44;  /* Border saat hover atau active */
-
   /* Text */
-  --text-primary:   #f0ebe0;  /* Heading, konten utama */
+  --text-primary:   #e8e4d9;  /* Heading, konten utama */
   --text-body:      #c8c0ad;  /* Body text, paragraf */
-  --text-secondary: #9a9080;  /* Label sekunder, metadata */
-  --text-tertiary:  #6a6255;  /* Muted text, placeholder */
+  --text-secondary: #9c9787;  /* Label sekunder, metadata */
+  --text-tertiary:  #6b6557;  /* Muted text, placeholder */
   --text-disabled:  #403c34;  /* Disabled state */
 
   /* Accents */
-  --accent-primary:       #c9b97a;  /* Aksen utama: border aktif, CTA background */
-  --accent-primary-dim:   #a89860;  /* Sedikit lebih gelap */
-  --accent-primary-muted: rgba(201, 185, 122, 0.12);
-  --accent-primary-glow:  rgba(201, 185, 122, 0.06);
+  --accent:         #b8a472;  /* Aksen utama: border aktif, CTA background */
+  --accent-primary: #b8a472;  /* Legacy support */
+  --accent-primary-dim: #96855a;
+  --accent-primary-muted: rgba(184, 164, 114, 0.12);
+  --accent-primary-glow:  rgba(184, 164, 114, 0.06);
 
   /* Semantic */
   --setuju:        #7a9c6e;

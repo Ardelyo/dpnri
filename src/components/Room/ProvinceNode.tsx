@@ -2,7 +2,7 @@ import React from 'react';
 import type { VoteType } from '../../types';
 
 interface ProvinceNodeProps {
-  province: { name: string; color: string };
+  province: { name: string; color: string; short?: string };
   voteStatus?: VoteType | 'none';
   isSelected?: boolean;
   isNew?: boolean;
@@ -16,50 +16,63 @@ export const ProvinceNode: React.FC<ProvinceNodeProps> = ({
   isSelected = false, 
   isNew = false, 
   onClick,
-  rowFraction
 }: ProvinceNodeProps) => {
   const getGlow = () => {
-    if (voteStatus === 'setuju') return '0 0 8px var(--setuju)';
-    if (voteStatus === 'tolak') return '0 0 8px var(--tolak)';
-    if (voteStatus === 'abstain') return '0 0 8px var(--abstain)';
+    if (voteStatus === 'setuju') return '0 0 12px var(--setuju)';
+    if (voteStatus === 'tolak') return '0 0 12px var(--tolak)';
+    if (voteStatus === 'abstain') return '0 0 12px var(--abstain)';
     return 'none';
+  };
+
+  const getBackground = () => {
+    if (voteStatus === 'none') return 'var(--surface-3)';
+    return `var(--${voteStatus})`;
+  };
+
+  const getTextColor = () => {
+    if (voteStatus === 'none') return 'var(--text-tertiary)';
+    return '#ffffff';
   };
 
   return (
     <div
       onClick={onClick}
       style={{
-        width: '24px',
-        height: '24px',
-        borderRadius: '6px',
-        background: voteStatus === 'none' ? 'var(--surface-3)' : `var(--${voteStatus})`,
-        border: isSelected ? '2px solid var(--text-primary)' : '1px solid var(--border-subtle)',
+        width: '36px',
+        height: '26px',
+        borderRadius: 'var(--radius-sm)',
+        background: getBackground(),
+        border: isSelected ? '2px solid var(--accent)' : '1px solid rgba(255,255,255,0.05)',
         display: 'flex',
         alignItems: 'center',
         justifyContent: 'center',
         cursor: 'pointer',
-        transition: 'all 0.3s cubic-bezier(0.4, 0, 0.2, 1)',
-        transform: `translateY(${Math.sin(rowFraction * Math.PI) * -8}px) ${isSelected ? 'scale(1.2)' : 'scale(1)'}`,
-        boxShadow: isNew ? '0 0 15px var(--accent-primary)' : (isSelected ? getGlow() : 'none'),
+        transition: 'all 300ms ease-out',
+        transform: isSelected ? 'scale(1.05)' : 'scale(1)',
+        boxShadow: isNew ? '0 0 15px var(--accent)' : (isSelected ? getGlow() : 'none'),
         position: 'relative',
         zIndex: isSelected ? 10 : 1,
+        opacity: voteStatus === 'none' ? 0.5 : 1,
+        WebkitTapHighlightColor: 'transparent',
       }}
     >
       <div style={{
-        fontSize: '8px',
-        fontWeight: '800',
-        color: voteStatus === 'none' ? 'var(--text-tertiary)' : 'var(--surface-0)',
+        fontSize: '10px',
+        fontWeight: '600',
+        color: getTextColor(),
+        fontFamily: 'var(--font-ui)',
         pointerEvents: 'none',
+        letterSpacing: '-0.01em'
       }}>
-        {province.name.substring(0, 2)}
+        {province.short || province.name.substring(0, 2).toUpperCase()}
       </div>
 
       {isNew && (
         <span style={{
           position: 'absolute',
           inset: -2,
-          borderRadius: '7px',
-          border: '2px solid var(--accent-primary)',
+          borderRadius: '6px',
+          border: '2px solid var(--accent)',
           animation: 'pulse-live 2s infinite',
         }} />
       )}

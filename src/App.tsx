@@ -4,34 +4,35 @@ import { RoomScreen } from './components/Room/RoomScreen';
 import { SpeakScreen } from './components/Speak/SpeakScreen';
 import { ArchiveScreen } from './components/Archive/ArchiveScreen';
 import { ShareCard } from './components/ShareCard/ShareCard';
+import { LandingScreen } from './components/Onboarding/LandingScreen';
 import { ProvinsiPicker } from './components/Onboarding/ProvinsiPicker';
 import { AppLayout } from './layouts/AppLayout';
 
 function App() {
   const screen = useDPNStore((s: DPNState) => s.screen);
   const showShareCard = useDPNStore((s: DPNState) => s.showShareCard);
-  const showOnboarding = useDPNStore((s: DPNState) => s.showOnboarding);
+
+  const isRoomActive = (screen === 'room' || screen === 'landing' || screen === 'onboarding') && !showShareCard;
 
   return (
     <AppLayout>
-      {/* Room is always rendered underneath */}
+      {/* Room or Landing/Onboarding context */}
       <div style={{
         position: 'absolute',
         inset: 0,
-        visibility: screen === 'room' && !showOnboarding && !showShareCard ? 'visible' : 'hidden',
+        visibility: isRoomActive ? 'visible' : 'hidden',
       }}>
-        <RoomScreen />
+        {screen === 'landing' && <LandingScreen />}
+        {screen === 'onboarding' && <ProvinsiPicker />}
+        {screen === 'room' && <RoomScreen />}
       </div>
 
       {/* Full screen overlays */}
       {screen === 'speak' && <SpeakScreen />}
       {screen === 'archive' && <ArchiveScreen />}
 
-      {/* Onboarding */}
-      {showOnboarding && <ProvinsiPicker />}
-
       {/* Share card */}
-      {showShareCard && <ShareCard />}
+      {showShareCard && <ShareCard onClose={() => useDPNStore.getState().setShowShareCard(false)} opinion={useDPNStore.getState().lastSubmittedOpinion} />}
     </AppLayout>
   );
 }

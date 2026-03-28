@@ -1,5 +1,5 @@
 export type VoteType = "setuju" | "abstain" | "tolak";
-export type Screen = "room" | "speak" | "archive" | "map";
+export type Screen = "room" | "speak" | "archive" | "map" | "landing" | "onboarding" | "postvote";
 
 export interface Opinion {
   id: string;
@@ -50,8 +50,6 @@ export interface DPNState {
   setScreen: (s: Screen) => void;
   userProvinsi: string | null;
   setUserProvinsi: (p: string) => void;
-  showOnboarding: boolean;
-  setShowOnboarding: (v: boolean) => void;
   activeSession: Session;
   pastSessions: Session[];
   opinions: Opinion[];

@@ -40,8 +40,7 @@ export const LiveCounter: React.FC<LiveCounterProps> = ({ count, onArchive }: Li
         }}
       />
       <span
-        className="label-meta"
-        style={{ color: 'var(--text-secondary)', fontSize: '11px' }}
+        style={{ color: 'var(--text-secondary)', fontSize: '11px', fontFamily: 'var(--font-ui)', fontWeight: 600, letterSpacing: '0.04em' }}
       >
         {count} HADIR
       </span>
@@ -57,7 +56,6 @@ interface RoomHeaderProps {
 
 export const RoomHeader: React.FC<RoomHeaderProps> = ({ 
   totalOnline, 
-  session, 
   onArchive 
 }: RoomHeaderProps) => {
   return (
@@ -69,58 +67,29 @@ export const RoomHeader: React.FC<RoomHeaderProps> = ({
         padding: '0 16px',
         height: '48px',
         flexShrink: 0,
-        borderBottom: '1px solid var(--border-faint)',
+        borderBottom: '1px solid var(--surface-3)',
         background: 'var(--surface-0)',
       }}>
         <div>
-          <span className="label-overline">DPN RI</span>
-          <span style={{ color: 'var(--border-loud)', margin: '0 5px', fontSize: '10px' }}>·</span>
-          <span className="label-overline" style={{ color: 'var(--text-tertiary)' }}>
+          <span style={{ 
+            fontSize: '11px', 
+            fontWeight: 600, 
+            color: 'var(--accent)', 
+            letterSpacing: '0.08em',
+            fontFamily: 'var(--font-ui)'
+          }}>DPN RI</span>
+          <span style={{ color: 'var(--surface-3)', margin: '0 8px', fontSize: '10px' }}>·</span>
+          <span style={{ 
+            fontSize: '11px', 
+            fontWeight: 600, 
+            color: 'var(--text-tertiary)', 
+            letterSpacing: '0.08em',
+            fontFamily: 'var(--font-ui)'
+          }}>
             SIDANG AKTIF
           </span>
         </div>
         <LiveCounter count={totalOnline} onArchive={onArchive} />
-      </div>
-
-      <div style={{
-        padding: '12px 16px 10px',
-        flexShrink: 0,
-        borderBottom: '1px solid var(--border-faint)',
-      }}>
-        <div style={{ display: 'flex', alignItems: 'center', gap: '8px', marginBottom: '5px' }}>
-          <span style={{
-            fontFamily: 'var(--font-ui)',
-            fontSize: '11px',
-            fontWeight: 600,
-            color: 'var(--text-tertiary)',
-            background: 'var(--surface-3)',
-            borderRadius: 'var(--radius-sm)',
-            padding: '2px 6px',
-            letterSpacing: '0.04em',
-          }}>
-            #{session.nomor}
-          </span>
-          <span className="badge badge-aktif">Aktif</span>
-        </div>
-        <h2 style={{
-          fontFamily: 'var(--font-display)',
-          fontSize: '17px',
-          fontWeight: 400,
-          color: 'var(--text-primary)',
-          lineHeight: 1.3,
-          marginBottom: '3px',
-        }}>
-          {session.judul}
-        </h2>
-        <p style={{
-          fontSize: '12px',
-          color: 'var(--text-tertiary)',
-          lineHeight: 1.4,
-          fontStyle: 'italic',
-          fontFamily: 'var(--font-display)',
-        }}>
-          {session.pertanyaan}
-        </p>
       </div>
     </>
   );

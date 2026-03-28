@@ -15,17 +15,14 @@ import {
 const savedProvinsi = typeof window !== 'undefined' ? localStorage.getItem('dpn_provinsi') : null;
 
 export const useDPNStore = create<DPNState>((set: any, get: any) => ({
-  screen: "room",
+  screen: savedProvinsi ? "room" : "landing",
   setScreen: (s: Screen) => set({ screen: s }),
 
   userProvinsi: savedProvinsi,
   setUserProvinsi: (p: string) => {
     localStorage.setItem('dpn_provinsi', p);
-    set({ userProvinsi: p, showOnboarding: false });
+    set({ userProvinsi: p });
   },
-
-  showOnboarding: false,
-  setShowOnboarding: (v: boolean) => set({ showOnboarding: v }),
 
   activeSession: {
     ...ACTIVE_SESSION,

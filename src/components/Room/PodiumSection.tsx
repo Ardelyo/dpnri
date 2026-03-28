@@ -1,35 +1,5 @@
 import React from 'react';
 
-interface StatItemProps {
-  label: string;
-  value: number;
-  color: string;
-}
-
-const StatItem: React.FC<StatItemProps> = ({ label, value, color }: StatItemProps) => (
-  <div style={{ textAlign: 'center', minWidth: '45px' }}>
-    <div style={{
-      fontSize: '14px',
-      fontWeight: '600',
-      color: 'var(--text-primary)',
-      fontFamily: 'var(--font-ui)',
-      lineHeight: 1,
-      marginBottom: '2px',
-    }}>
-      {value}
-    </div>
-    <div style={{
-      fontSize: '9px',
-      textTransform: 'uppercase',
-      letterSpacing: '0.04em',
-      color: color,
-      fontWeight: '600',
-    }}>
-      {label}
-    </div>
-  </div>
-);
-
 interface PodiumSectionProps {
   votes: { setuju: number; abstain: number; tolak: number };
   totalSuara: number;
@@ -37,70 +7,126 @@ interface PodiumSectionProps {
 
 export const PodiumSection: React.FC<PodiumSectionProps> = ({ votes, totalSuara }: PodiumSectionProps) => {
   const { setuju, abstain, tolak } = votes;
+  const total = Math.max(totalSuara, 1);
+  
+  const pSetuju = Math.round((setuju / total) * 100);
+  const pAbstain = Math.round((abstain / total) * 100);
+  const pTolak = 100 - pSetuju - pAbstain; // Ensure 100% total
 
   return (
     <div style={{
-      padding: '16px 16px 8px',
-      background: 'linear-gradient(to bottom, var(--surface-0), var(--surface-1))',
-      borderBottom: '1px solid var(--border-faint)',
+      display: 'flex',
+      flexDirection: 'column',
+      alignItems: 'center',
+      paddingBottom: '16px',
     }}>
+      {/* Subtle radial glow */}
       <div style={{
-        position: 'relative',
-        width: '100%',
-        height: '100px',
-        display: 'flex',
-        alignItems: 'flex-end',
-        justifyContent: 'center',
-        paddingBottom: '10px',
-      }}>
-        {/* Simple Podium SVG */}
+        position: 'absolute',
+        top: '120px',
+        width: '200px',
+        height: '200px',
+        background: 'radial-gradient(circle, var(--surface-1) 0%, transparent 70%)',
+        opacity: 0.3,
+        zIndex: 0,
+        pointerEvents: 'none',
+      }} />
+
+      {/* Podium SVG */}
+      <div style={{ position: 'relative', width: '80px', height: '70px', marginBottom: '8px', zIndex: 1 }}>
         <svg
-          width="180"
-          height="80"
-          viewBox="0 0 180 80"
+          viewBox="0 0 80 70"
           fill="none"
           xmlns="http://www.w3.org/2000/svg"
-          style={{ filter: 'drop-shadow(0 4px 12px rgba(0,0,0,0.5))' }}
+          style={{ width: '100%', height: '100%' }}
         >
-          <path d="M10 80 L30 15 L150 15 L170 80 Z" fill="var(--podium-dark)" stroke="var(--border-subtle)" strokeWidth="1" />
-          <path d="M30 15 L150 15" stroke="var(--accent-primary-dim)" strokeWidth="2" opacity="0.6" />
-          <rect x="60" y="25" width="60" height="2" fill="var(--accent-primary-glow)" />
-          <circle cx="90" cy="15" r="3" fill="var(--accent-primary)" />
-          <path d="M0 80 H 180" stroke="var(--border-subtle)" strokeWidth="1" />
+          {/* Base */}
+          <path d="M10 65 L25 10 L55 10 L70 65 Z" fill="var(--surface-2)" stroke="var(--accent)" strokeWidth="0.5" opacity="0.8" />
+          <path d="M25 10 H55" stroke="var(--accent)" strokeWidth="1" />
+          {/* Microphones */}
+          <path d="M35 10 L30 2" stroke="var(--text-tertiary)" strokeWidth="1" strokeLinecap="round" />
+          <path d="M45 10 L50 2" stroke="var(--text-tertiary)" strokeWidth="1" strokeLinecap="round" />
+          <circle cx="30" cy="2" r="1.5" fill="var(--text-tertiary)" />
+          <circle cx="50" cy="2" r="1.5" fill="var(--text-tertiary)" />
+          {/* Logo/Badge placeholder */}
+          <rect x="35" y="25" width="10" height="10" rx="1" fill="var(--accent)" opacity="0.2" />
         </svg>
-
-        {/* Stats overlay */}
-        <div style={{
-          position: 'absolute',
-          bottom: '22px',
-          width: '100%',
-          display: 'flex',
-          justifyContent: 'center',
-          gap: '20px',
-        }}>
-          <StatItem label="Setuju" value={setuju} color="var(--setuju)" />
-          <StatItem label="Abstain" value={abstain} color="var(--abstain)" />
-          <StatItem label="Tolak" value={tolak} color="var(--tolak)" />
-        </div>
       </div>
 
-      {/* Vote Bars */}
-      <div style={{ display: 'flex', flexDirection: 'column', gap: '6px', marginTop: '10px' }}>
-        <div className="vote-bar-track">
-          <div className="vote-bar-segment" style={{ width: `${(setuju / (totalSuara || 1)) * 100}%`, background: 'var(--setuju)' }} />
-          <div className="vote-bar-segment" style={{ width: `${(abstain / (totalSuara || 1)) * 100}%`, background: 'var(--abstain)' }} />
-          <div className="vote-bar-segment" style={{ width: `${(tolak / (totalSuara || 1)) * 100}%`, background: 'var(--tolak)' }} />
+      {/* Summary Bar (Task 3.4) */}
+      <div style={{ width: '100%', padding: '0 32px', textAlign: 'center', zIndex: 1 }}>
+        {/* Voting Bar */}
+        <div style={{
+          width: '100%',
+          height: '6px',
+          background: 'var(--surface-3)',
+          borderRadius: '3px',
+          overflow: 'hidden',
+          display: 'flex',
+          gap: '2px', // Gap between segments
+          marginBottom: '8px',
+        }}>
+          {setuju > 0 && (
+            <div style={{ 
+              width: `${pSetuju}%`, 
+              minWidth: '4px',
+              background: 'var(--setuju)', 
+              borderRadius: '2px 0 0 2px' 
+            }} />
+          )}
+          {abstain > 0 && (
+            <div style={{ 
+              width: `${pAbstain}%`, 
+              minWidth: '4px',
+              background: 'var(--abstain)' 
+            }} />
+          )}
+          {tolak > 0 && (
+            <div style={{ 
+              width: `${pTolak}%`, 
+              minWidth: '4px',
+              background: 'var(--tolak)', 
+              borderRadius: '0 2px 2px 0' 
+            }} />
+          )}
         </div>
+
+        {/* Labels with dots */}
         <div style={{
           display: 'flex',
-          justifyContent: 'space-between',
+          justifyContent: 'center',
           alignItems: 'center',
+          fontSize: '12px',
+          color: 'var(--text-secondary)',
+          fontFamily: 'var(--font-ui)',
+          flexWrap: 'wrap',
+          gap: '4px',
+        }}>
+          <span style={{ display: 'flex', alignItems: 'center', gap: '4px' }}>
+            <span style={{ width: '6px', height: '6px', borderRadius: '50%', background: 'var(--setuju)' }} />
+            {pSetuju}% setuju
+          </span>
+          <span style={{ color: 'var(--text-tertiary)' }}>·</span>
+          <span style={{ display: 'flex', alignItems: 'center', gap: '4px' }}>
+            <span style={{ width: '6px', height: '6px', borderRadius: '50%', background: 'var(--abstain)' }} />
+            {pAbstain}% abstain
+          </span>
+          <span style={{ color: 'var(--text-tertiary)' }}>·</span>
+          <span style={{ display: 'flex', alignItems: 'center', gap: '4px' }}>
+            <span style={{ width: '6px', height: '6px', borderRadius: '50%', background: 'var(--tolak)' }} />
+            {pTolak}% tolak
+          </span>
+        </div>
+
+        {/* Total voices */}
+        <div style={{
+          marginTop: '4px',
           fontSize: '11px',
           color: 'var(--text-tertiary)',
-          fontFamily: 'var(--font-ui)',
+          textTransform: 'uppercase',
+          letterSpacing: '0.04em',
         }}>
-          <span>{totalSuara} SUARA MASUK</span>
-          <span style={{ color: 'var(--accent-primary)', fontWeight: 600 }}>LIVE TALLY</span>
+          {totalSuara} suara tercatat
         </div>
       </div>
     </div>
